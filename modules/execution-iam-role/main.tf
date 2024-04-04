@@ -29,7 +29,7 @@ data "aws_iam_role" "existing_execution_iam_role" {
 locals {
   region_name_length = length(data.aws_region.current.name)
   region_name_short = format("%s%s%s",
-    substr(data.aws_region.current.name, 0, 1),
+    substr(data.aws_region.current.name, 0, 2),
     substr(data.aws_region.current.name, 3, 1),                           // Assuming you want the character at index 3 (fourth character)
     substr(data.aws_region.current.name, local.region_name_length - 1, 1) // Get the last character
   )
@@ -40,8 +40,8 @@ locals {
     "${var.runtime_configuration.lambda_name}_execution_role"
   ) : ""
 
-  policy_name_suffix = local.create_new_execution_iam_role ? format("For%s-%s", title(replace(replace(var.runtime_configuration.lambda_name, "-", " "), "_", " ")), local.region_name_short) : ""
-  policy_name        = "AllowLambdaContext"//${local.policy_name_suffix}"
+  policy_name_suffix = local.create_new_execution_iam_role ? format("For%s-%s", replace(title(replace(replace(var.runtime_configuration.lambda_name, "-", " "), "_", " "))," ", ""), local.region_name_short) : ""
+  policy_name        = "AllowLambdaContext${local.policy_name_suffix}"
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
