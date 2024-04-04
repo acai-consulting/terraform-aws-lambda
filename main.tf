@@ -31,8 +31,10 @@ locals {
   region_name_splitted = split("-", data.aws_region.current.name)
   region_name_short    = "${local.region_name_splitted[0]}${substr(local.region_name_splitted[1], 0, 1)}${local.region_name_splitted[2]}"
 
+  trigger_sqs_name = "${aws_lambda_function.this.function_name}-trigger"
   loggroup_name = "/aws/lambda/${ var.lambda.function_name}"
 }
+
 
 # ---------------------------------------------------------------------------------------------------------------------
 # ¦ LAMBDA
@@ -113,21 +115,17 @@ resource "aws_lambda_function" "this" {
   ]
 }
 
-
 # ---------------------------------------------------------------------------------------------------------------------
 # ¦ LAMBDA TRIGGERS
 # ---------------------------------------------------------------------------------------------------------------------
 resource "aws_lambda_permission" "allowed_triggers" {
-  for_each = {
-    for k, v in var.lambda.trigger_permissions : k => v
-  }
+  for_each = { for idx, perm in var.lambda.trigger_permissions : idx => perm }
 
-  statement_id  = format("AllowExecution%02d", each.key)
+  statement_id  = format("AllowExecution%02d", each.key + 1)
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.this.arn
   principal     = each.value.principal
-  # omit source_arn when 'any' to grant permission to any resource in principal
-  source_arn = each.value.source_arn == "any" ? null : each.value.source_arn
+  source_arn    = each.value.source_arn != "any" ? each.value.source_arn : null
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
