@@ -1,9 +1,17 @@
 variable "trigger_settings" {
   type = object({
+    trigger_permissions = optional(list(object({
+      principal  = string
+      source_arn = string
+    })), null)
     sqs = optional(object({
-      access_policy_json = string
-      timeout            = number
-      inbound_sns_topics = list(string)
+      access_policy_json_list = list(string)
+      inbound_sns_topics = optional(list(object(
+        {
+          sns_arn            = string
+          filter_policy_json = string
+        }
+      )), [])
     }), null)
     schedule_expression = string
     event_rules = optional(list(object({
@@ -24,8 +32,10 @@ variable "existing_kms_cmk_arn" {
 variable "runtime_configuration" {
   description = "Configuration related to the runtime environment of the Lambda function."
   type = object({
-    function_name = string
-    function_arn  = string
+    lambda_name    = string
+    lambda_arn     = string
+    lambda_timeout = number
+
   })
 }
 

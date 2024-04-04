@@ -2,7 +2,8 @@
 # ¦ PROVIDER
 # ---------------------------------------------------------------------------------------------------------------------
 provider "aws" {
-  region = "eu-central-1"
+  profile = "acai_testbed"
+  region  = "eu-central-1"
   # please use the target role you need.
   # create additional providers in case your module provisions to multiple core accounts.
   assume_role {
@@ -13,7 +14,7 @@ provider "aws" {
   }
 }
 
-
+/*
 # ---------------------------------------------------------------------------------------------------------------------
 # ¦ BACKEND
 # ---------------------------------------------------------------------------------------------------------------------
@@ -26,8 +27,8 @@ terraform {
       name = "aws-testbed"
     }
   }
-
 }
+*/
 
 # ---------------------------------------------------------------------------------------------------------------------
 # ¦ VERSIONS
@@ -55,12 +56,12 @@ data "aws_region" "current" {}
 # ---------------------------------------------------------------------------------------------------------------------
 locals {
   execution_policy_name = format(
-    "%s_execution_policy-%s",
-    var.function_name,
-    random_string.suffix.result,
+    "%s_execution_policy",
+    var.function_name
   )
-  event_patterns = [
-    jsonencode(
+  triggering_event_rules = [{
+    name = "test_function_event"
+    event_pattern = jsonencode(
       {
         "source" : ["aws.ec2"],
         "detail-type" : ["EC2 Instance State-change Notification"],
@@ -69,18 +70,7 @@ locals {
         }
       }
     )
-  ]
-}
-
-# ---------------------------------------------------------------------------------------------------------------------
-# ¦ RANDOM SUFFIX
-# ---------------------------------------------------------------------------------------------------------------------
-resource "random_string" "suffix" {
-  length  = 16
-  numeric = true
-  lower   = true
-  upper   = true
-  special = false
+  }]
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -105,28 +95,33 @@ data "aws_iam_policy_document" "list_users" {
 # ¦ LAMBDA
 # ---------------------------------------------------------------------------------------------------------------------
 #tfsec:ignore:aws-lambda-enable-tracing
-module "lambda" {
+module "test_lambda" {
   # source  = "nuvibit/lambda/aws"
   # version = "~> 1.0"
   source = "../../"
 
-  function_name           = var.function_name
-  description             = var.description
-  package_source_path     = "${path.module}/lambda_files"
-  handler                 = "main.lambda_handler"
-  schedule_expression     = "cron(0 12 * * ? *)"
-  event_patterns          = local.event_patterns
-  iam_execution_role_path = "/lambda/"
-  iam_execution_policy_arns = [
-    aws_iam_policy.list_users.arn
-  ]
-  environment_variables = {
-    ACCOUNT_ID = data.aws_caller_identity.current.account_id
+  lambda_settings = {
+    function_name = var.function_name
+    description   = var.description
+    handler       = "main.lambda_handler"
+    config = {
+      runtime     = "python3.12"
+      memory_size = 128
+      timeout     = 360
+    }
+    environment_variables = {
+      ACCOUNT_ID = data.aws_caller_identity.current.account_id
+    }
+    tracing_mode = "PassThrough"
+    package = {
+      source_path = "${path.module}/lambda_files"
+    }
   }
-  memory_size          = 128
-  timeout              = 360
-  runtime              = "python3.9"
-  resource_tags        = var.resource_tags
-  resource_name_suffix = random_string.suffix.result
-  tracing_mode         = "PassThrough"
+
+  trigger_settings = {
+    schedule_expression = "cron(0 12 * * ? *)"
+    event_rules         = local.triggering_event_rules
+  }
+  resource_tags = var.resource_tags
+
 }

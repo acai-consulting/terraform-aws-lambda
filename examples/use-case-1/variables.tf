@@ -11,6 +11,7 @@ variable "resource_tags" {
 variable "function_name" {
   description = "Unique name for your Lambda Function."
   type        = string
+  default     = "local_test"
 }
 
 variable "description" {

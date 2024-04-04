@@ -28,11 +28,14 @@ data "aws_region" "current" {}
 # ¦ LOCALS
 # ---------------------------------------------------------------------------------------------------------------------
 locals {
-  region_name_splitted = split("-", data.aws_region.current.name)
-  region_name_short    = "${local.region_name_splitted[0]}${substr(local.region_name_splitted[1], 0, 1)}${local.region_name_splitted[2]}"
-
+  region_name_length = length(data.aws_region.current.name)
+  region_name_short = format("%s%s%s",
+    substr(data.aws_region.current.name, 0, 1),
+    substr(data.aws_region.current.name, 3, 1),                           // Assuming you want the character at index 3 (fourth character)
+    substr(data.aws_region.current.name, local.region_name_length - 1, 1) // Get the last character
+  )
   trigger_sqs_name = "${aws_lambda_function.this.function_name}-trigger"
-  loggroup_name    = "/aws/lambda/${var.lambda.function_name}"
+  loggroup_name    = "/aws/lambda/${var.lambda_settings.function_name}"
 }
 
 
@@ -40,70 +43,70 @@ locals {
 # ¦ LAMBDA
 # ---------------------------------------------------------------------------------------------------------------------
 data "archive_file" "lambda_package" {
-  count = var.lambda.package.source_path == null ? 0 : 1
+  count = var.lambda_settings.package.source_path == null ? 0 : 1
 
   type        = "zip"
-  source_dir  = var.lambda.package.source_path
+  source_dir  = var.lambda_settings.package.source_path
   output_path = "${path.module}/${local.region_name_short}_zipped_package.zip"
 }
 
 resource "aws_lambda_function" "this" {
-  function_name = var.lambda.function_name
-  description   = var.lambda.description
-  layers        = var.lambda.layer_names
-  role          = module.execution_role.lambda_execution_role_arn
-  handler       = var.lambda.handler
+  function_name = var.lambda_settings.function_name
+  description   = var.lambda_settings.description
+  layers        = var.lambda_settings.layer_names
+  role          = module.lambda_execution_iam_role.lambda_execution_iam_role.arn
+  handler       = var.lambda_settings.handler
 
-  runtime       = var.lambda.config.runtime
-  architectures = [var.lambda.config.architecture]
-  timeout       = var.lambda.config.timeout
-  memory_size   = var.lambda.config.memory_size
+  runtime       = var.lambda_settings.config.runtime
+  architectures = [var.lambda_settings.config.architecture]
+  timeout       = var.lambda_settings.config.timeout
+  memory_size   = var.lambda_settings.config.memory_size
 
   ephemeral_storage {
-    size = var.lambda.config.ephemeral_storage_size
+    size = var.lambda_settings.config.ephemeral_storage_size
   }
 
-  package_type     = var.lambda.package.type
-  image_uri        = var.lambda.image_config.image_uri
-  filename         = var.lambda.package.source_path == null ? var.lambda.package.local_path : data.archive_file.lambda_package[0].output_path
-  source_code_hash = var.lambda.package.source_path == null ? filebase64sha256(var.lambda.package.local_path) : data.archive_file.lambda_package[0].output_base64sha256
+  package_type     = var.lambda_settings.package.type
+  image_uri        = try(var.lambda_settings.image_config.image_uri, null)
+  filename         = var.lambda_settings.package.source_path == null ? var.lambda_settings.package.local_path : data.archive_file.lambda_package[0].output_path
+  source_code_hash = var.lambda_settings.package.source_path == null ? filebase64sha256(var.lambda_settings.package.local_path) : data.archive_file.lambda_package[0].output_base64sha256
 
   environment {
-    variables = var.lambda.environment_variables
+    variables = var.lambda_settings.environment_variables
   }
 
-  reserved_concurrent_executions = var.lambda.reserved_concurrent_executions
-  publish                        = var.lambda.publish
+  reserved_concurrent_executions = var.lambda_settings.reserved_concurrent_executions
+  publish                        = var.lambda_settings.publish
 
   dynamic "tracing_config" {
-    for_each = var.lambda.tracing_mode != null ? [1] : []
+    for_each = var.lambda_settings.tracing_mode != null ? [1] : []
     content {
-      mode = var.lambda.tracing_mode
+      mode = var.lambda_settings.tracing_mode
     }
   }
 
   dynamic "file_system_config" {
-    for_each = var.lambda.file_system_config != null ? [1] : []
+    for_each = var.lambda_settings.file_system_config != null ? [1] : []
     content {
-      arn              = var.lambda.file_system_config.arn
-      local_mount_path = var.lambda.file_system_config.local_mount_path
+      arn              = var.lambda_settings.file_system_config.arn
+      local_mount_path = var.lambda_settings.file_system_config.local_mount_path
     }
   }
 
   dynamic "image_config" {
-    for_each = var.lambda.image_config != null ? [1] : []
+    for_each = var.lambda_settings.image_config != null ? [1] : []
     content {
-      command           = var.lambda.image_config.command
-      entry_point       = var.lambda.image_config.entry_point
-      working_directory = var.lambda.image_config.working_directory
+      command           = var.lambda_settings.image_config.command
+      entry_point       = var.lambda_settings.image_config.entry_point
+      working_directory = var.lambda_settings.image_config.working_directory
     }
   }
 
   dynamic "vpc_config" {
-    for_each = var.lambda.vpc_config != null ? [1] : []
+    for_each = var.lambda_settings.vpc_config != null ? [1] : []
     content {
-      security_group_ids = var.lambda.vpc_config.security_group_ids
-      subnet_ids         = var.lambda.vpc_config.subnet_ids
+      security_group_ids = var.lambda_settings.vpc_config.security_group_ids
+      subnet_ids         = var.lambda_settings.vpc_config.subnet_ids
     }
   }
 
@@ -111,21 +114,8 @@ resource "aws_lambda_function" "this" {
 
   depends_on = [
     aws_cloudwatch_log_group.lambda_logs,
-    module.execution_role
+    module.lambda_execution_iam_role
   ]
-}
-
-# ---------------------------------------------------------------------------------------------------------------------
-# ¦ LAMBDA TRIGGERS
-# ---------------------------------------------------------------------------------------------------------------------
-resource "aws_lambda_permission" "allowed_triggers" {
-  for_each = { for idx, perm in var.lambda.trigger_permissions : idx => perm }
-
-  statement_id  = format("AllowExecution%02d", each.key + 1)
-  action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.this.arn
-  principal     = each.value.principal
-  source_arn    = each.value.source_arn != "any" ? each.value.source_arn : null
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -133,7 +123,7 @@ resource "aws_lambda_permission" "allowed_triggers" {
 # ---------------------------------------------------------------------------------------------------------------------
 resource "aws_cloudwatch_log_group" "lambda_logs" {
   name              = local.loggroup_name
-  retention_in_days = var.lambda.config.log_retention_in_days
+  retention_in_days = var.lambda_settings.config.log_retention_in_days
   kms_key_id        = var.existing_kms_cmk_arn
   tags              = var.resource_tags
 }
@@ -148,8 +138,9 @@ module "lambda_trigger" {
   trigger_settings     = var.trigger_settings
   existing_kms_cmk_arn = var.existing_kms_cmk_arn
   runtime_configuration = {
-    function_name = aws_lambda_function.this.function_name
-    function_arn  = aws_lambda_function.this.arn
+    lambda_name    = aws_lambda_function.this.function_name
+    lambda_arn     = aws_lambda_function.this.arn
+    lambda_timeout = aws_lambda_function.this.timeout
   }
 }
 
@@ -160,18 +151,34 @@ module "lambda_execution_iam_role" {
   source = "./modules/execution-iam-role"
 
   execution_iam_role_settings = var.execution_iam_role_settings
-
+  existing_kms_cmk_arn = var.existing_kms_cmk_arn
   runtime_configuration = {
-    function_name       = aws_lambda_function.this.function_name
-    loggroup_name       = local.loggroup_name
-    trigger_sqs_enabled = var.trigger_settings != null
-    trigger_sqs_arn     = var.trigger_settings != null ? module.lambda_trigger[0].trigger_sqs_arn : null
-    kms_key_arn         = var.existing_kms_cmk_arn
+    lambda_name   = var.lambda_settings.function_name
+    loggroup_name = local.loggroup_name
   }
 }
 
 resource "aws_iam_role_policy_attachment" "aws_xray_write_only_access" {
-  count      = var.lambda.enable_tracing == true ? 1 : 0
-  role       = module.lambda_execution_iam_role.iam_role_name
+  count      = var.lambda_settings.tracing_mode == null ? 0 : 1
+  role       = module.lambda_execution_iam_role.lambda_execution_iam_role.name
   policy_arn = "arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess"
+}
+
+resource "aws_iam_role_policy" "triggering_sqs_permissions" {
+  count  = var.trigger_settings.sqs != null ? 1 : 0
+  name   = "TriggeringSqsPermissions"
+  role   = module.lambda_execution_iam_role.lambda_execution_iam_role.name
+  policy = data.aws_iam_policy_document.triggering_sqs_permissions.json
+}
+
+data "aws_iam_policy_document" "triggering_sqs_permissions" {
+  dynamic "statement" {
+    for_each = var.trigger_settings.sqs != null ? [1] : []
+    content {
+      sid       = "AllowTriggerSqs"
+      effect    = "Allow"
+      actions   = ["sqs:ReceiveMessage", "sqs:DeleteMessage", "sqs:GetQueueAttributes"]
+      resources = [module.lambda_trigger[0].trigger_sqs_arn]
+    }
+  }
 }

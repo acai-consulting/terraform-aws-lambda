@@ -19,7 +19,7 @@ data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
 data "aws_iam_role" "existing_execution_iam_role" {
-  count = var.execution_iam_role_settings.existing_iam_role_name != null ? 1 : 0
+  count = local.create_new_execution_iam_role == null ? 1 : 0
   name  = var.execution_iam_role_settings.existing_iam_role_name
 }
 
@@ -27,14 +27,21 @@ data "aws_iam_role" "existing_execution_iam_role" {
 # ¦ LOCALS
 # ---------------------------------------------------------------------------------------------------------------------
 locals {
-  region_name_short = format("%s%s%s", 
+  region_name_length = length(data.aws_region.current.name)
+  region_name_short = format("%s%s%s",
     substr(data.aws_region.current.name, 0, 1),
-    substr(data.aws_region.current.name, 4, 1),
-    substr(data.aws_region.current.name, -1)
+    substr(data.aws_region.current.name, 3, 1),                           // Assuming you want the character at index 3 (fourth character)
+    substr(data.aws_region.current.name, local.region_name_length - 1, 1) // Get the last character
   )
   create_new_execution_iam_role = var.execution_iam_role_settings.new_iam_role != null
-  policy_name_suffix = local.create_new_execution_iam_role ? format("For%s-%s", title(replace(replace(var.runtime_configuration.function_name, "-", " "), "_", " ")), local.region_name_short) : ""
-  policy_name = "AllowLambdaContext${local.policy_name_suffix}"
+
+  new_execution_role_name = local.create_new_execution_iam_role ? coalesce(
+    var.execution_iam_role_settings.new_iam_role.name,
+    "${var.runtime_configuration.lambda_name}_execution_role"
+  ) : ""
+
+  policy_name_suffix = local.create_new_execution_iam_role ? format("For%s-%s", title(replace(replace(var.runtime_configuration.lambda_name, "-", " "), "_", " ")), local.region_name_short) : ""
+  policy_name        = "AllowLambdaContext"//${local.policy_name_suffix}"
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -43,7 +50,7 @@ locals {
 resource "aws_iam_role" "lambda" {
   count = local.create_new_execution_iam_role ? 1 : 0
 
-  name                 = var.execution_iam_role_settings.new_iam_role.name
+  name                 = local.new_execution_role_name
   path                 = var.execution_iam_role_settings.new_iam_role.path
   assume_role_policy   = data.aws_iam_policy_document.lambda.json
   permissions_boundary = var.execution_iam_role_settings.new_iam_role.permissions_boundary_arn
@@ -55,9 +62,9 @@ resource "aws_iam_role" "lambda" {
 # ---------------------------------------------------------------------------------------------------------------------
 data "aws_iam_policy_document" "lambda" {
   statement {
-    sid       = "TrustPolicy"
-    effect    = "Allow"
-    actions   = ["sts:AssumeRole"]
+    sid     = "TrustPolicy"
+    effect  = "Allow"
+    actions = ["sts:AssumeRole"]
     principals {
       type        = "Service"
       identifiers = ["lambda.amazonaws.com"]
@@ -69,9 +76,9 @@ data "aws_iam_policy_document" "lambda" {
 # ¦ ATTACH IAM POLICIES
 # ---------------------------------------------------------------------------------------------------------------------
 resource "aws_iam_role_policy_attachment" "lambda" {
-  count      = local.create_new_execution_iam_role ? length(var.execution_iam_role_settings.new_role.permission_policy_arns) : 0
+  count      = local.create_new_execution_iam_role ? length(var.execution_iam_role_settings.new_iam_role.permission_policy_arns) : 0
   role       = aws_iam_role.lambda[0].name
-  policy_arn = var.execution_iam_role_settings.new_role.permission_policy_arns[count.index]
+  policy_arn = var.execution_iam_role_settings.new_iam_role.permission_policy_arns[count.index]
 }
 
 resource "aws_iam_role_policy" "lambda_context" {
@@ -89,22 +96,12 @@ data "aws_iam_policy_document" "lambda_context" {
   }
 
   dynamic "statement" {
-    for_each = var.runtime_configuration.trigger_sqs_enabled ? [1] : []
-    content {
-      sid       = "AllowTriggerSqs"
-      effect    = "Allow"
-      actions   = ["sqs:ReceiveMessage", "sqs:DeleteMessage", "sqs:GetQueueAttributes"]
-      resources = [var.runtime_configuration.trigger_sqs_arn]
-    }
-  }
-
-  dynamic "statement" {
-    for_each = var.runtime_configuration.encryption_enabled ? [1] : []
+    for_each = var.existing_kms_cmk_arn != null ? [1] : []
     content {
       sid       = "AllowKmsCmkAccess"
       effect    = "Allow"
       actions   = ["kms:GenerateDataKey", "kms:Decrypt"]
-      resources = [var.runtime_configuration.kms_key_arn]
+      resources = [var.existing_kms_cmk_arn]
     }
   }
 }
