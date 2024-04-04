@@ -1,18 +1,22 @@
-variable "new_execution_iam_role_settings" {
-  description = "Configuration for creating a new IAM role for Lambda execution. Set to null to use an existing role."
+variable "execution_iam_role_settings" {
+  description = "Configuration of the for Lambda execution IAM role."
   type = object({
-    iam_role_name            = string
-    iam_role_path            = string
-    permissions_boundary_arn = string
-    permission_policy_arns   = list(string)
+    new_iam_role = optional(object({
+      name                     = string
+      path                     = string
+      permissions_boundary_arn = string
+      permission_policy_arns   = list(string)
+    }), null)
+    existing_iam_role_name = optional(string, null)
   })
-  default = null
-}
 
-variable "existing_execution_iam_role_name" {
-  description = "The name of an existing IAM role for Lambda execution to be used if creating a new role is not required."
-  type    = string
-  default = null
+  validation {
+    condition = (
+      (var.execution_iam_role_settings.new_role != null && var.execution_iam_role_settings.existing_role == null) ||
+      (var.execution_iam_role_settings.new_role == null && var.execution_iam_role_settings.existing_role != null)
+    )
+    error_message = "Specify exactly one of 'new_role' or 'existing_role'."
+  }
 }
 
 variable "runtime_configuration" {

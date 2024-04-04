@@ -129,13 +129,22 @@ resource "aws_lambda_permission" "allowed_triggers" {
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
+# ¦ CLOUDWATCH LOGS
+# ---------------------------------------------------------------------------------------------------------------------
+resource "aws_cloudwatch_log_group" "lambda_logs" {
+  name              = local.loggroup_name
+  retention_in_days = var.lambda.config.log_retention_in_days
+  kms_key_id        = var.existing_kms_cmk_arn
+  tags              = var.resource_tags
+}
+
+# ---------------------------------------------------------------------------------------------------------------------
 # ¦ IAM EXECUTION ROLE
 # ---------------------------------------------------------------------------------------------------------------------
 module "lambda_execution_iam_role" {
   source = "./modules/execution-role"
 
-  new_execution_iam_role_settings  = var.new_execution_iam_role_settings
-  existing_execution_iam_role_name = var.existing_execution_iam_role_name
+  execution_iam_role_settings  = var.execution_iam_role_settings
 
   runtime_configuration = {
     function_name       = aws_lambda_function.this.function_name
@@ -153,14 +162,4 @@ resource "aws_iam_role_policy_attachment" "aws_xray_write_only_access" {
   count      = var.lambda.enable_tracing == true ? 1 : 0
   role       = module.lambda_execution_iam_role.iam_role_name
   policy_arn = "arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess"
-}
-
-# ---------------------------------------------------------------------------------------------------------------------
-# ¦ CLOUDWATCH LOGS
-# ---------------------------------------------------------------------------------------------------------------------
-resource "aws_cloudwatch_log_group" "lambda_logs" {
-  name              = local.loggroup_name
-  retention_in_days = var.lambda.config.log_retention_in_days
-  kms_key_id        = var.existing_kms_cmk_arn
-  tags              = var.resource_tags
 }
