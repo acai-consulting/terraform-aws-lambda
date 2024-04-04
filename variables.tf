@@ -5,26 +5,41 @@ variable "lambda" {
     layer_names   = list(string)
     handler       = string
     config = object({
-      runtime           = string                     #  Identifier of the function's runtime. See Runtimes for valid values.
-      architecture      = optional(string, "x86_64") # Instruction set architecture for your Lambda function. Valid values are 'x86_64' and 'arm64'.
-      timeout           = optional(number, 30)
-      memory_size       = optional(number, 512)
-      ephemeral_storage = optional(number, 512)
-
+      runtime                = string                     #  Identifier of the function's runtime. See Runtimes for valid values.
+      architecture           = optional(string, "x86_64") # Instruction set architecture for your Lambda function. Valid values are 'x86_64' and 'arm64'.
+      timeout                = optional(number, 30)
+      memory_size            = optional(number, 512)
+      ephemeral_storage_size = optional(number, 512) # Min 512 MB and the Max 10240 MB
     })
-    environment_variables = optional(map(string), {}) # Map of environment variables that are accessible from the function code during execution.
     package = object({
       type        = optional(string, "Zip")
       local_path  = optional(string, null)
       source_path = optional(string, null)
     })
+    environment_variables          = optional(map(string), {}) # Map of environment variables that are accessible from the function code during execution.
     reserved_concurrent_executions = optional(number, -1)
     publish                        = optional(bool, false) # Whether to publish creation/change as new Lambda Function Version.
+    tracing_mode                   = optional(string)
+    file_system_config = optional({
+      arn              = string
+      local_mount_path = string
+    }, null)
+    image_config = optional({
+      image_uri         = optional(string)
+      command           = optional(string, null)
+      entry_point       = optional(string, null)
+      working_directory = optional(string, null)
+    }, null)
     vpc_config = optional({
-      subnet_ids         = optional(list(string), [])
       security_group_ids = optional(list(string), [])
+      subnet_ids         = optional(list(string), [])
     }, null)
   })
+
+  validation {
+    condition     = var.lambda.tracing_mode == null ? true : contains(["Active", "PassThrough"], var.lambda.tracing_mode)
+    error_message = "Value must be 'Active' or 'PassThrough'."
+  }
 }
 
 variable "iam_execution_role" {

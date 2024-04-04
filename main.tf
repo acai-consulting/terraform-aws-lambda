@@ -44,68 +44,73 @@ data "archive_file" "lambda_package" {
 }
 
 resource "aws_lambda_function" "this" {
-  function_name                  = var.lambda.function_name
-  description                    = var.lambda.description
-  layers                         = var.lambda.layer_names
-  role                           = module.execution_role.lambda_execution_role_arn
-  handler                        = var.lambda.handler
+  function_name = var.lambda.function_name
+  description   = var.lambda.description
+  layers        = var.lambda.layer_names
+  role          = module.execution_role.lambda_execution_role_arn
+  handler       = var.lambda.handler
 
-  runtime                        = var.lambda.config.runtime
-  architectures                  = [var.lambda.config.architecture]
-  timeout                        = var.lambda.config.timeout
-  memory_size                    = var.lambda.config.memory_size
+  runtime       = var.lambda.config.runtime
+  architectures = [var.lambda.config.architecture]
+  timeout       = var.lambda.config.timeout
+  memory_size   = var.lambda.config.memory_size
 
-  ephemeral_storage              {
-    size = var.lambda.config.ephemeral_storage # Min 512 MB and the Max 10240 MB
-  } 
-  package_type                   = var.lambda.package.type
-  filename                       = var.lambda.package.source_path == null ? var.lambda.package.local_path : data.archive_file.lambda_package[0].output_path
-  source_code_hash               = var.lambda.package.source_path == null ? filebase64sha256(var.lambda.package.local_path) : data.archive_file.lambda_package[0].output_base64sha256
+  ephemeral_storage {
+    size = var.lambda.config.ephemeral_storage_size
+  }
+
+  package_type     = var.lambda.package.type
+  image_uri        = var.lambda.image_config.image_uri
+  filename         = var.lambda.package.source_path == null ? var.lambda.package.local_path : data.archive_file.lambda_package[0].output_path
+  source_code_hash = var.lambda.package.source_path == null ? filebase64sha256(var.lambda.package.local_path) : data.archive_file.lambda_package[0].output_base64sha256
+
+  environment {
+    variables = var.lambda.environment_variables
+  }
+
   reserved_concurrent_executions = var.lambda.reserved_concurrent_executions
   publish                        = var.lambda.publish
 
-  dynamic "environment" {
-    # add environment when environment_variables are defined
-    for_each = length(keys(var.lambda.environment_variables)) == 0 ? [] : [true]
-    content {
-      variables = var.lambda.environment_variables
-    }
-  }
-
-  dynamic "vpc_config" {
-    # add vpc_config when vpc_subnet_ids and vpc_security_group_ids are defined
-    for_each = var.vpc_subnet_ids == null && var.vpc_security_group_ids == null ? [] : [true]
-    iterator = filter
-    content {
-      subnet_ids         = var.vpc_subnet_ids
-      security_group_ids = var.vpc_security_group_ids
-    }
-  }
-
   dynamic "tracing_config" {
-    # add tracing_config when tracing_mode is defined
-    for_each = var.tracing_mode == null ? [] : [true]
+    for_each = var.lambda.tracing_mode != null ? [1] : []
     content {
-      mode = var.tracing_mode
+      mode = var.lambda.tracing_mode
     }
   }
 
   dynamic "file_system_config" {
-    # add file_system_config when file_system_config_arn and file_system_config_local_mount_path are defined
-    for_each = var.file_system_config_arn == null && var.file_system_config_local_mount_path == null ? [] : [true]
+    for_each = var.lambda.file_system_config != null ? [1] : []
     content {
-      local_mount_path = var.file_system_config_local_mount_path
-      arn              = var.file_system_config_arn
+      arn              = var.lambda.file_system_config.arn
+      local_mount_path = var.lambda.file_system_config.local_mount_path
     }
   }
 
-  tags                           = var.resource_tags
+  dynamic "image_config" {
+    for_each = var.lambda.image_config != null ? [1] : []
+    content {
+      command           = var.lambda.image_config.command
+      entry_point       = var.lambda.image_config.entry_point
+      working_directory = var.lambda.image_config.working_directory
+    }
+  }
+
+  dynamic "vpc_config" {
+    for_each = var.lambda.vpc_config != null && (length(var.lambda.vpc_config.subnet_ids) > 0 || length(var.lambda.vpc_config.security_group_ids) > 0) ? [var.lambda.vpc_config] : []
+    content {
+      security_group_ids = var.lambda.vpc_config.security_group_ids
+      subnet_ids         = var.lambda.vpc_config.subnet_ids
+    }
+  }
+
+  tags = var.resource_tags
 
   depends_on = [
     aws_cloudwatch_log_group.lambda_logs,
     module.execution_role
   ]
 }
+
 
 # ---------------------------------------------------------------------------------------------------------------------
 # ¦ LAMBDA TRIGGERS
