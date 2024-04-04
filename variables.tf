@@ -18,7 +18,12 @@ variable "lambda" {
       local_path  = optional(string, null)
       source_path = optional(string, null)
     })
-    publish = optional(bool, false) # Whether to publish creation/change as new Lambda Function Version.
+    reserved_concurrent_executions = optional(number, -1)
+    publish                        = optional(bool, false) # Whether to publish creation/change as new Lambda Function Version.
+    vpc_config = optional({
+      subnet_ids         = optional(list(string), [])
+      security_group_ids = optional(list(string), [])
+    }, null)
   })
 }
 

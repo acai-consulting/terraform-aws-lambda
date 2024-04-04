@@ -44,7 +44,7 @@ data "archive_file" "lambda_package" {
 }
 
 resource "aws_lambda_function" "this" {
-  function_name                  = local.lambda_name
+  function_name                  = var.lambda.function_name
   description                    = var.lambda.description
   layers                         = var.lambda.layer_names
   role                           = module.execution_role.lambda_execution_role_arn
@@ -61,7 +61,7 @@ resource "aws_lambda_function" "this" {
   package_type                   = var.lambda.package.type
   filename                       = var.lambda.package.source_path == null ? var.lambda.package.local_path : data.archive_file.lambda_package[0].output_path
   source_code_hash               = var.lambda.package.source_path == null ? filebase64sha256(var.lambda.package.local_path) : data.archive_file.lambda_package[0].output_base64sha256
-  reserved_concurrent_executions = var.reserved_concurrent_executions
+  reserved_concurrent_executions = var.lambda.reserved_concurrent_executions
   publish                        = var.lambda.publish
 
   dynamic "environment" {
