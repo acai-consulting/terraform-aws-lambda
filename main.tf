@@ -30,6 +30,8 @@ data "aws_region" "current" {}
 locals {
   region_name_splitted = split("-", data.aws_region.current.name)
   region_name_short    = "${local.region_name_splitted[0]}${substr(local.region_name_splitted[1], 0, 1)}${local.region_name_splitted[2]}"
+
+  loggroup_name = "/aws/lambda/${ var.lambda.function_name}"
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -96,7 +98,7 @@ resource "aws_lambda_function" "this" {
   }
 
   dynamic "vpc_config" {
-    for_each = var.lambda.vpc_config != null && (length(var.lambda.vpc_config.subnet_ids) > 0 || length(var.lambda.vpc_config.security_group_ids) > 0) ? [var.lambda.vpc_config] : []
+    for_each = var.lambda.vpc_config != null ? [1] : []
     content {
       security_group_ids = var.lambda.vpc_config.security_group_ids
       subnet_ids         = var.lambda.vpc_config.subnet_ids
@@ -117,7 +119,7 @@ resource "aws_lambda_function" "this" {
 # ---------------------------------------------------------------------------------------------------------------------
 resource "aws_lambda_permission" "allowed_triggers" {
   for_each = {
-    for k, v in var.trigger_permissions : k => v
+    for k, v in var.lambda.trigger_permissions : k => v
   }
 
   statement_id  = format("AllowExecution%02d", each.key)
@@ -134,22 +136,16 @@ resource "aws_lambda_permission" "allowed_triggers" {
 module "lambda_execution_iam_role" {
   source = "./modules/execution-role"
 
-  function_name = local.lambda_name
-  # if the iam execution role should not be created an external iam execution role arn is expected instead
-  create_execution_role                       = var.create_execution_role
-  iam_execution_role_external_name            = var.iam_execution_role_external_name
-  iam_execution_role_name                     = var.iam_execution_role_name == null ? local.execution_role_name : var.iam_execution_role_name
-  iam_execution_role_path                     = var.iam_execution_role_path
-  iam_execution_role_permissions_boundary_arn = var.iam_execution_role_permissions_boundary_arn
-  iam_execution_policy_arns                   = var.iam_execution_policy_arns
-  trigger_sqs_enabled                         = var.trigger_sqs_enabled
-  trigger_sqs_arn                             = var.trigger_sqs_enabled == true ? aws_sqs_queue.lambda_trigger[0].arn : ""
-  lambda_loggroup_name                        = aws_cloudwatch_log_group.lambda_logs.name
-  resource_tags                               = var.resource_tags
-  resource_name_suffix                        = var.resource_name_suffix
-  enable_tracing                              = var.tracing_mode == null ? false : true
-  enable_encryption                           = var.enable_encryption
-  kms_key_arn                                 = var.kms_key_arn
+  new_execution_iam_role_settings  = var.new_execution_iam_role_settings
+  existing_execution_iam_role_name = var.existing_execution_iam_role_name
+
+  runtime_configuration = {
+    function_name       = aws_lambda_function.this.function_name
+    loggroup_name       = local.loggroup_name
+    trigger_sqs_enabled = var.trigger_sqs != null
+    trigger_sqs_arn     = var.trigger_sqs != null ? aws_sqs_queue.lambda_trigger[0].arn : null
+    kms_key_arn         = var.existing_kms_cmk_arn
+  }
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -166,7 +162,7 @@ resource "aws_iam_role_policy_attachment" "aws_xray_write_only_access" {
 # ---------------------------------------------------------------------------------------------------------------------
 resource "aws_cloudwatch_log_group" "lambda_logs" {
   name              = local.loggroup_name
-  retention_in_days = var.log_retention_in_days
-  kms_key_id        = var.kms_key_arn
+  retention_in_days = var.lambda.config.log_retention_in_days
+  kms_key_id        = var.existing_kms_cmk_arn
   tags              = var.resource_tags
 }

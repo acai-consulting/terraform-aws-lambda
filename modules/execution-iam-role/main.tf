@@ -19,7 +19,7 @@ data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
 data "aws_iam_role" "existing_execution_iam_role" {
-  count = var.settings_new_execution_iam_role != null ? 0 : 1
+  count = var.new_execution_iam_role_settings != null ? 0 : 1
   name  = var.existing_execution_iam_role_name
 }
 
@@ -32,7 +32,7 @@ locals {
     substr(data.aws_region.current.name, 4, 1),
     substr(data.aws_region.current.name, -1)
   )
-  create_new_execution_iam_role = var.settings_new_execution_iam_role != null
+  create_new_execution_iam_role = var.new_execution_iam_role_settings != null
   policy_name_suffix = local.create_new_execution_iam_role ? format("For%s-%s", title(replace(replace(var.runtime_configuration.function_name, "-", " "), "_", " ")), local.region_name_short) : ""
   policy_name = "AllowLambdaContext${local.policy_name_suffix}"
 }
@@ -43,10 +43,10 @@ locals {
 resource "aws_iam_role" "lambda" {
   count = local.create_new_execution_iam_role ? 1 : 0
 
-  name                 = var.settings_new_execution_iam_role.iam_role_name
-  path                 = var.settings_new_execution_iam_role.iam_role_path
+  name                 = var.new_execution_iam_role_settings.iam_role_name
+  path                 = var.new_execution_iam_role_settings.iam_role_path
   assume_role_policy   = data.aws_iam_policy_document.lambda.json
-  permissions_boundary = var.settings_new_execution_iam_role.permissions_boundary_arn
+  permissions_boundary = var.new_execution_iam_role_settings.permissions_boundary_arn
   tags                 = var.resource_tags
 }
 
@@ -69,9 +69,9 @@ data "aws_iam_policy_document" "lambda" {
 # ¦ ATTACH IAM POLICIES
 # ---------------------------------------------------------------------------------------------------------------------
 resource "aws_iam_role_policy_attachment" "lambda" {
-  count      = local.create_new_execution_iam_role ? length(var.settings_new_execution_iam_role.permission_policy_arns) : 0
+  count      = local.create_new_execution_iam_role ? length(var.new_execution_iam_role_settings.permission_policy_arns) : 0
   role       = aws_iam_role.lambda[0].name
-  policy_arn = var.settings_new_execution_iam_role.permission_policy_arns[count.index]
+  policy_arn = var.new_execution_iam_role_settings.permission_policy_arns[count.index]
 }
 
 resource "aws_iam_role_policy" "lambda_context" {

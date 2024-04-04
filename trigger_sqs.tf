@@ -1,9 +1,5 @@
 locals {
-    trigger_sqs_name = format(
-      "%s-trigger%s",
-      var.function_name,
-      local.suffix_k
-    )
+  trigger_sqs_name = "${aws_lambda_function.this.function_name}-trigger"
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -13,7 +9,7 @@ resource "aws_sqs_queue" "lambda_trigger" {
   count = var.trigger_sqs != null ? 1 : 0
 
   name                       = local.trigger_sqs_name
-  kms_master_key_id          = var.kms_key_arn
+  kms_master_key_id          = var.existing_kms_cmk_arn
   visibility_timeout_seconds = var.trigger_sqs.timeout
   tags                       = var.resource_tags
 }

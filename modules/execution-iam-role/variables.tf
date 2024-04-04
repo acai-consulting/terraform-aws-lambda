@@ -1,4 +1,4 @@
-variable "settings_new_execution_iam_role" {
+variable "new_execution_iam_role_settings" {
   description = "Configuration for creating a new IAM role for Lambda execution. Set to null to use an existing role."
   type = object({
     iam_role_name            = string
