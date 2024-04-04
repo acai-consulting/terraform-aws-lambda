@@ -59,6 +59,44 @@ variable "lambda" {
   }
 }
 
+variable "trigger_settings" {
+  type = object({
+    sqs = optional(object({
+      access_policy_json = optional(string, null)
+      timeout            = number
+      inbound_sns_topics = list(string)
+    }), null)
+    scheduling = optional(object({
+      name               = string
+      access_policy_json = optional(string, null)
+      timeout            = number
+      inbound_sns_topics = list(string)
+    }), null)
+    event_rules = optional(list(object({
+      name           = string
+      description    = string
+      event_bus_name = optional(string, "default")
+      event_pattern  = string
+    })), null)
+  })
+  default = null
+  validation {
+    condition     = var.trigger_settings.schedule_expression == null ? true : can(regex("^(rate\\(((1 (hour|minute|day))|(\\d+ (hours|minutes|days)))\\))|(cron\\(\\s*($|#|\\w+\\s*=|(\\?|\\*|(?:[0-5]?\\d)(?:(?:-|\\/|\\,)(?:[0-5]?\\d))?(?:,(?:[0-5]?\\d)(?:(?:-|\\/|\\,)(?:[0-5]?\\d))?)*)\\s+(\\?|\\*|(?:[0-5]?\\d)(?:(?:-|\\/|\\,)(?:[0-5]?\\d))?(?:,(?:[0-5]?\\d)(?:(?:-|\\/|\\,)(?:[0-5]?\\d))?)*)\\s+(\\?|\\*|(?:[01]?\\d|2[0-3])(?:(?:-|\\/|\\,)(?:[01]?\\d|2[0-3]))?(?:,(?:[01]?\\d|2[0-3])(?:(?:-|\\/|\\,)(?:[01]?\\d|2[0-3]))?)*)\\s+(\\?|\\*|(?:0?[1-9]|[12]\\d|3[01])(?:(?:-|\\/|\\,)(?:0?[1-9]|[12]\\d|3[01]))?(?:,(?:0?[1-9]|[12]\\d|3[01])(?:(?:-|\\/|\\,)(?:0?[1-9]|[12]\\d|3[01]))?)*)\\s+(\\?|\\*|(?:[1-9]|1[012])(?:(?:-|\\/|\\,)(?:[1-9]|1[012]))?(?:L|W)?(?:,(?:[1-9]|1[012])(?:(?:-|\\/|\\,)(?:[1-9]|1[012]))?(?:L|W)?)*|\\?|\\*|(?:JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)(?:(?:-)(?:JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC))?(?:,(?:JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)(?:(?:-)(?:JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC))?)*)\\s+(\\?|\\*|(?:[0-6])(?:(?:-|\\/|\\,|#)(?:[0-6]))?(?:L)?(?:,(?:[0-6])(?:(?:-|\\/|\\,|#)(?:[0-6]))?(?:L)?)*|\\?|\\*|(?:MON|TUE|WED|THU|FRI|SAT|SUN)(?:(?:-)(?:MON|TUE|WED|THU|FRI|SAT|SUN))?(?:,(?:MON|TUE|WED|THU|FRI|SAT|SUN)(?:(?:-)(?:MON|TUE|WED|THU|FRI|SAT|SUN))?)*)(|\\s)+(\\?|\\*|(?:|\\d{4})(?:(?:-|\\/|\\,)(?:|\\d{4}))?(?:,(?:|\\d{4})(?:(?:-|\\/|\\,)(?:|\\d{4}))?)*))\\))$", var.trigger_settings.schedule_expression))
+    error_message = "Value must match standard rate or cron expression."
+  }
+
+  validation {
+    condition = length(var.trigger_settings.event_rules) == 0 ? true : alltrue([
+      for pattern in var.trigger_settings.event_rules : (
+        can(jsondecode(pattern)) ?
+        can(jsondecode(pattern).source) :
+        false
+      )
+    ])
+    error_message = "Values must be valid JSON and have \"source\" field set."
+  }
+}
+
 variable "execution_iam_role_settings" {
   description = "Configuration of the for Lambda execution IAM role."
   type = object({
@@ -89,40 +127,6 @@ variable "existing_kms_cmk_arn" {
   validation {
     condition     = var.existing_kms_cmk_arn == null ? true : can(regex("^arn:aws:kms", var.existing_kms_cmk_arn))
     error_message = "Value must contain ARN, starting with \"arn:aws:kms\"."
-  }
-}
-
-variable "trigger_context" {
-  type = object({
-    sqs = optional(object({
-      access_policy_json = optional(string, null)
-      timeout            = number
-      inbound_sns_topics = list(string)
-    }), null)
-    scheduling = optional(object({
-      name               = string
-      access_policy_json = optional(string, null)
-      timeout            = number
-      inbound_sns_topics = list(string)
-    }), null)
-    event_rules = optional(list(object({
-      name           = string
-      description    = string
-      event_bus_name = optional(string, "default")
-      event_pattern  = string
-    })), null)
-  })
-  default = null
-
-  validation {
-    condition = length(var.trigger_context.event_rules) == 0 ? true : alltrue([
-      for pattern in var.trigger_context.event_rules : (
-        can(jsondecode(pattern)) ?
-        can(jsondecode(pattern).source) :
-        false
-      )
-    ])
-    error_message = "Values must be valid JSON and have \"source\" field set."
   }
 }
 

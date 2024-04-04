@@ -1,9 +1,14 @@
-output "lambda_execution_iam_role_info" {
-  description = "Information about the Lambda execution role."
-  value = {
-    "id"          = local.create_new_execution_iam_role ? aws_iam_role.lambda[0].id : data.aws_iam_role.existing_execution_iam_role[0].id,
-    "unique_id"   = local.create_new_execution_iam_role ? aws_iam_role.lambda[0].unique_id : data.aws_iam_role.existing_execution_iam_role[0].unique_id,
-    "name"        = local.create_new_execution_iam_role ? aws_iam_role.lambda[0].name : data.aws_iam_role.existing_execution_iam_role[0].name,
-    "arn"         = local.create_new_execution_iam_role ? aws_iam_role.lambda[0].arn : data.aws_iam_role.existing_execution_iam_role[0].arn
-  }
+output "trigger_sqs_arn" {
+  description = "The ARN of the SQS queue configured as a trigger for the Lambda function."
+  value       = var.trigger_settings.sqs != null ? aws_sqs_queue.lambda_trigger[0].arn : null
+}
+
+output "scheduler_arn" {
+  description = "The ARN of the CloudWatch event rule for schedule."
+  value       = var.trigger_settings.schedule_expression != null ? aws_cloudwatch_event_rule.schedule[0].arn : null
+}
+
+output "cloudwatch_event_rule_arns" {
+  description = "ARNs of the created CloudWatch event rules."
+  value       = var.trigger_settings.event_rules != null ? [for rule in aws_cloudwatch_event_rule.pattern : rule.arn] : []
 }

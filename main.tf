@@ -32,7 +32,7 @@ locals {
   region_name_short    = "${local.region_name_splitted[0]}${substr(local.region_name_splitted[1], 0, 1)}${local.region_name_splitted[2]}"
 
   trigger_sqs_name = "${aws_lambda_function.this.function_name}-trigger"
-  loggroup_name = "/aws/lambda/${ var.lambda.function_name}"
+  loggroup_name    = "/aws/lambda/${var.lambda.function_name}"
 }
 
 
@@ -139,25 +139,37 @@ resource "aws_cloudwatch_log_group" "lambda_logs" {
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
-# ¦ IAM EXECUTION ROLE
+# ¦ TRIGGER
 # ---------------------------------------------------------------------------------------------------------------------
-module "lambda_execution_iam_role" {
-  source = "./modules/execution-role"
+module "lambda_trigger" {
+  source = "./modules/trigger"
+  count  = var.trigger_settings != null ? 1 : 0
 
-  execution_iam_role_settings  = var.execution_iam_role_settings
-
+  trigger_settings     = var.trigger_settings
+  existing_kms_cmk_arn = var.existing_kms_cmk_arn
   runtime_configuration = {
-    function_name       = aws_lambda_function.this.function_name
-    loggroup_name       = local.loggroup_name
-    trigger_sqs_enabled = var.trigger_sqs != null
-    trigger_sqs_arn     = var.trigger_sqs != null ? aws_sqs_queue.lambda_trigger[0].arn : null
-    kms_key_arn         = var.existing_kms_cmk_arn
+    function_name = aws_lambda_function.this.function_name
+    function_arn  = aws_lambda_function.this.arn
   }
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
-# ¦ X-RAY - IAM POLICY
+# ¦ IAM EXECUTION ROLE
 # ---------------------------------------------------------------------------------------------------------------------
+module "lambda_execution_iam_role" {
+  source = "./modules/execution-iam-role"
+
+  execution_iam_role_settings = var.execution_iam_role_settings
+
+  runtime_configuration = {
+    function_name       = aws_lambda_function.this.function_name
+    loggroup_name       = local.loggroup_name
+    trigger_sqs_enabled = var.trigger_settings != null
+    trigger_sqs_arn     = var.trigger_settings != null ? module.lambda_trigger[0].trigger_sqs_arn : null
+    kms_key_arn         = var.existing_kms_cmk_arn
+  }
+}
+
 resource "aws_iam_role_policy_attachment" "aws_xray_write_only_access" {
   count      = var.lambda.enable_tracing == true ? 1 : 0
   role       = module.lambda_execution_iam_role.iam_role_name
