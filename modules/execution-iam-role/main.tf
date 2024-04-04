@@ -6,9 +6,8 @@ terraform {
 
   required_providers {
     aws = {
-      source                = "hashicorp/aws"
-      version               = ">= 5.00"
-      configuration_aliases = []
+      source  = "hashicorp/aws"
+      version = ">= 5.00"
     }
   }
 }
@@ -18,6 +17,7 @@ terraform {
 # ---------------------------------------------------------------------------------------------------------------------
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
+
 data "aws_iam_role" "existing_execution_iam_role" {
   count = var.settings_new_execution_iam_role != null ? 0 : 1
   name  = var.existing_execution_iam_role_name
@@ -27,14 +27,18 @@ data "aws_iam_role" "existing_execution_iam_role" {
 # ¦ LOCALS
 # ---------------------------------------------------------------------------------------------------------------------
 locals {
-  region_name_splitted = split("-", data.aws_region.current.name)
-  region_name_short    = "${local.region_name_splitted[0]}${substr(local.region_name_splitted[1], 0, 1)}${local.region_name_splitted[2]}"
+  region_name_short = format("%s%s%s", 
+    substr(data.aws_region.current.name, 0, 1),
+    substr(data.aws_region.current.name, 4, 1),
+    substr(data.aws_region.current.name, -1)
+  )
   create_new_execution_iam_role = var.settings_new_execution_iam_role != null
-  policy_name = var.settings_new_execution_iam_role == null ? "AllowLambdaContext" : format("AllowLambdaContextFor%s-%s", replace(title(replace(replace(var.function_name, "-", " "), "_", " ")), " ", ""), local.region_name_short)
+  policy_name_suffix = local.create_new_execution_iam_role ? format("For%s-%s", title(replace(replace(var.runtime_configuration.function_name, "-", " "), "_", " ")), local.region_name_short) : ""
+  policy_name = "AllowLambdaContext${local.policy_name_suffix}"
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
-# ¦ IAM LAMBDA EXECUTION ROLE
+# ¦ LAMBDA EXECUTION IAM ROLE
 # ---------------------------------------------------------------------------------------------------------------------
 resource "aws_iam_role" "lambda" {
   count = local.create_new_execution_iam_role ? 1 : 0
@@ -47,19 +51,17 @@ resource "aws_iam_role" "lambda" {
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
-# ¦ IAM LAMBDA EXECUTION POLICY
+# ¦ LAMBDA EXECUTION IAM POLICY
 # ---------------------------------------------------------------------------------------------------------------------
 data "aws_iam_policy_document" "lambda" {
   statement {
-    sid    = "TrustPolicy"
-    effect = "Allow"
+    sid       = "TrustPolicy"
+    effect    = "Allow"
+    actions   = ["sts:AssumeRole"]
     principals {
       type        = "Service"
       identifiers = ["lambda.amazonaws.com"]
     }
-    actions = [
-      "sts:AssumeRole"
-    ]
   }
 }
 
@@ -67,69 +69,42 @@ data "aws_iam_policy_document" "lambda" {
 # ¦ ATTACH IAM POLICIES
 # ---------------------------------------------------------------------------------------------------------------------
 resource "aws_iam_role_policy_attachment" "lambda" {
-  count = local.create_new_execution_iam_role ? length(var.settings_new_execution_iam_role.permission_policy_arns) : 0
-
+  count      = local.create_new_execution_iam_role ? length(var.settings_new_execution_iam_role.permission_policy_arns) : 0
   role       = aws_iam_role.lambda[0].name
   policy_arn = var.settings_new_execution_iam_role.permission_policy_arns[count.index]
 }
 
-# ---------------------------------------------------------------------------------------------------------------------
-# ¦ LAMBDA LOGGING - IAM POLICY
-# ---------------------------------------------------------------------------------------------------------------------
 resource "aws_iam_role_policy" "lambda_context" {
   name   = local.policy_name
-  role   = local.create_new_execution_iam_role ? aws_iam_role.lambda[0].name : data.aws_iam_role.external_execution[0].name
+  role   = local.create_new_execution_iam_role ? aws_iam_role.lambda[0].name : data.aws_iam_role.existing_execution_iam_role[0].name
   policy = data.aws_iam_policy_document.lambda_context.json
 }
 
 data "aws_iam_policy_document" "lambda_context" {
   statement {
-    sid    = "LogToCloudWatch"
-    effect = "Allow"
-    actions = [
-      "logs:CreateLogStream",
-      "logs:PutLogEvents"
-    ]
-    resources = [
-      format(
-        "arn:aws:logs:%s:%s:log-group:%s:*",
-        data.aws_region.current.name,
-        data.aws_caller_identity.current.account_id,
-        var.var.runtime_configuration.loggroup_name
-      )
-    ]
+    sid       = "LogToCloudWatch"
+    effect    = "Allow"
+    actions   = ["logs:CreateLogStream", "logs:PutLogEvents"]
+    resources = ["arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:${var.runtime_configuration.loggroup_name}:*"]
   }
 
   dynamic "statement" {
-    # this conditional test is required in the event that the ARN is not known at the planning stage
-    for_each = var.runtime_configuration.trigger_sqs_enabled ? ["1"] : []
+    for_each = var.runtime_configuration.trigger_sqs_enabled ? [1] : []
     content {
-      sid    = "AllowTriggerSqs"
-      effect = "Allow"
-      actions = [
-        "sqs:ReceiveMessage",
-        "sqs:DeleteMessage",
-        "sqs:GetQueueAttributes"
-      ]
-      resources = [
-        var.runtime_configuration.trigger_sqs_arn
-      ]
+      sid       = "AllowTriggerSqs"
+      effect    = "Allow"
+      actions   = ["sqs:ReceiveMessage", "sqs:DeleteMessage", "sqs:GetQueueAttributes"]
+      resources = [var.runtime_configuration.trigger_sqs_arn]
     }
   }
 
   dynamic "statement" {
-    # this conditional test is required in the event that the ARN is not known at the planning stage
-    for_each = var.runtime_configuration.encryption_enabled ? ["1"] : []
+    for_each = var.runtime_configuration.encryption_enabled ? [1] : []
     content {
-      sid    = "AllowKmsCmkAccess"
-      effect = "Allow"
-      actions = [
-        "kms:GenerateDataKey",
-        "kms:Decrypt"
-      ]
-      resources = [
-        var.runtime_configuration.kms_key_arn
-      ]
+      sid       = "AllowKmsCmkAccess"
+      effect    = "Allow"
+      actions   = ["kms:GenerateDataKey", "kms:Decrypt"]
+      resources = [var.runtime_configuration.kms_key_arn]
     }
   }
 }

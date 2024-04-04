@@ -13,13 +13,9 @@ variable "existing_execution_iam_role_name" {
   default = null
 }
 
-variable "function_name" {
-  description = "Name of your Lambda Function."
-  type        = string
-}
-
 variable "runtime_configuration" {
   type = object({
+    function_name       = string
     loggroup_name       = string
     trigger_sqs_enabled = bool
     trigger_sqs_arn     = optional(string, null)
