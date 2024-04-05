@@ -16,7 +16,7 @@
 <!-- ARCHITECTURE -->
 ## Architecture
 
-![architecture][architecture-png]
+![architecture](./docs/terraform-aws-lambda.svg)
 
 <!-- FEATURES -->
 ## Features
@@ -33,7 +33,7 @@
 <!-- EXAMPLES -->
 ## Examples
 
-### Use-Case-1
+### Use-Case 1
 This Lambda will list all CloudWatch LogGroups and IAM Roles and return them as JSON.
 This Use-Case will create a Lambda, with a new Execution IAM Role and provides a lambda_permission policy-snip to perform the tasks.
 
@@ -85,7 +85,7 @@ module "use_case_1_lambda" {
 }
 ```
 
-### Use-Case-2
+### Use-Case 2
 This Lambda will list all Event-Rules and return them as JSON
 This Use-Case will create a Lambda, with a new Execution IAM Role and provides a lambda_permission policy-snip to perform the tasks.
 The Lambda will be scheduled and will be triggered by an Event Rule, listening for terminated EC2 instances.
@@ -157,13 +157,19 @@ module "test_lambda" {
 }
 ```
 
-### Use-Case-3
+### Use-Case 3
 In this Use-Case two Lambdas will share an IAM Role that is "externally" provided.
 
 Location: [`./examples/use-case-3`](./examples/use-case-3/)
 ``` hcl
+# ---------------------------------------------------------------------------------------------------------------------
+# ¦ DATA
+# ---------------------------------------------------------------------------------------------------------------------
 data "aws_caller_identity" "current" {}
 
+# ---------------------------------------------------------------------------------------------------------------------
+# ¦ SHARED IAM ROLE
+# ---------------------------------------------------------------------------------------------------------------------
 resource "aws_iam_role" "lambda_exec_role" {
   name = "use_case_3_shared_exec_role"
 
@@ -176,7 +182,7 @@ resource "aws_iam_role" "lambda_exec_role" {
           Service = "lambda.amazonaws.com"
         }
         Effect = "Allow"
-        Sid = ""
+        Sid    = ""
       },
     ]
   })
@@ -184,13 +190,14 @@ resource "aws_iam_role" "lambda_exec_role" {
   inline_policy {
     name   = "inline_lambda_execution_policy"
     policy = data.aws_iam_policy_document.lambda_permission.json
-  }  
+  }
 }
 
+#tfsec:ignore:avd-aws-0057
 data "aws_iam_policy_document" "lambda_permission" {
   statement {
-    effect    = "Allow"
-    actions   = [
+    effect = "Allow"
+    actions = [
       "logs:DescribeLogGroups",
       "iam:ListRoles",
       "events:List*",
@@ -200,7 +207,9 @@ data "aws_iam_policy_document" "lambda_permission" {
   }
 }
 
-
+# ---------------------------------------------------------------------------------------------------------------------
+# ¦ Lambda 1
+# ---------------------------------------------------------------------------------------------------------------------
 module "use_case_3_lambda1" {
   source = "../../"
 
@@ -209,7 +218,7 @@ module "use_case_3_lambda1" {
     description   = "This Lambda will list all CloudWatch LogGroups and IAM Roles and return them as JSON"
     handler       = "main.lambda_handler"
     config = {
-      runtime     = "python3.12"
+      runtime = "python3.12"
     }
     environment_variables = {
       ACCOUNT_ID = data.aws_caller_identity.current.account_id
@@ -218,17 +227,18 @@ module "use_case_3_lambda1" {
       source_path = "${path.module}/lambda1_files"
     }
   }
-
   execution_iam_role_settings = {
     existing_iam_role_name = aws_iam_role.lambda_exec_role.name
   }
-
   resource_tags = var.resource_tags
-  depends_on = [ 
+  depends_on = [
     aws_iam_role.lambda_exec_role
   ]
 }
 
+# ---------------------------------------------------------------------------------------------------------------------
+# ¦ Lambda 2
+# ---------------------------------------------------------------------------------------------------------------------
 locals {
   triggering_event_rules = [{
     name = "use_case_3_event"
@@ -263,20 +273,158 @@ module "use_case_3_lambda2" {
       source_path = "${path.module}/lambda2_files"
     }
   }
-
   trigger_settings = {
     schedule_expression = "cron(0 1 * * ? *)"
     event_rules         = local.triggering_event_rules
   }
-
   execution_iam_role_settings = {
     existing_iam_role_name = aws_iam_role.lambda_exec_role.name
   }
-
   resource_tags = var.resource_tags
-  depends_on = [ 
+  depends_on = [
     aws_iam_role.lambda_exec_role
   ]
+}
+```
+
+### Use-Case 4
+In this Use-Case an 'existing' KMS CMK will be provided and a SQS will be enabled.
+The Lambda module will provision the SQS and wire it up with the Lambda.
+THe KMS CMK will be used for the SQS queue and the CloudWatch LogGroup.
+
+Location: [`./examples/use-case-4`](./examples/use-case-4/)
+``` hcl
+# ---------------------------------------------------------------------------------------------------------------------
+# ¦ DATA
+# ---------------------------------------------------------------------------------------------------------------------
+data "aws_caller_identity" "current" {}
+
+# ---------------------------------------------------------------------------------------------------------------------
+# ¦ SHARED KMS CMK
+# ---------------------------------------------------------------------------------------------------------------------
+resource "aws_kms_key" "lambda_cmk" {
+  description             = "KMS CMK for Lambda Encryption/Decryption"
+  enable_key_rotation     = true
+  deletion_window_in_days = 10
+  policy                  = data.aws_iam_policy_document.lambda_kms_policy.json
+}
+resource "aws_kms_alias" "lambda_cmk_alias" {
+  name          = "alias/use_case_4_cmk"
+  target_key_id = aws_kms_key.lambda_cmk.key_id
+}
+#tfsec:ignore:avd-aws-0057
+data "aws_iam_policy_document" "lambda_kms_policy" {
+  statement {
+    actions   = ["kms:*"]
+    resources = ["*"]
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+  }
+  statement {
+    actions   = ["kms:*"]
+    resources = ["*"]
+    principals {
+      type = "Service"
+      identifiers = [
+        "logs.amazonaws.com",
+        "lambda.amazonaws.com",
+        "sns.amazonaws.com",
+        "sqs.amazonaws.com",
+      ]
+    }
+  }
+}
+
+# ---------------------------------------------------------------------------------------------------------------------
+# ¦ INBOUND SNS
+# ---------------------------------------------------------------------------------------------------------------------
+resource "aws_sns_topic" "triggering_sns" {
+  name              = format("%s-feed", var.function_name)
+  kms_master_key_id = aws_kms_key.lambda_cmk.key_id
+}
+
+resource "aws_sns_topic_policy" "triggering_sns" {
+  arn    = aws_sns_topic.triggering_sns.arn
+  policy = data.aws_iam_policy_document.triggering_sns.json
+}
+
+data "aws_iam_policy_document" "triggering_sns" {
+  statement {
+    sid     = "AllowedPublishers"
+    actions = ["sns:Publish"]
+    effect  = "Allow"
+    principals {
+      type = "AWS"
+      identifiers = [
+        format("arn:aws:iam::%s:root", data.aws_caller_identity.current.id)
+      ]
+    }
+    resources = [aws_sns_topic.triggering_sns.arn]
+  }
+  statement {
+    sid     = "AllowedSubscribers"
+    actions = ["sns:Subscribe"]
+    effect  = "Allow"
+    principals {
+      type = "AWS"
+      identifiers = [
+        format("arn:aws:iam::%s:root", data.aws_caller_identity.current.id)
+      ]
+    }
+    resources = [aws_sns_topic.triggering_sns.arn]
+  }
+}
+
+# ---------------------------------------------------------------------------------------------------------------------
+# ¦ Lambda
+# ---------------------------------------------------------------------------------------------------------------------
+data "aws_iam_policy_document" "lambda_permission" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "logs:DescribeLogGroups",
+      "iam:ListRoles"
+    ]
+    resources = ["*"]
+  }
+}
+
+module "use_case_4_lambda" {
+  source = "../../"
+
+  lambda_settings = {
+    function_name = var.function_name
+    description   = "This Lambda will list all CloudWatch LogGroups and IAM Roles and return them as JSON"
+    handler       = "main.lambda_handler"
+    config = {
+      runtime = "python3.12"
+    }
+    environment_variables = {
+      ACCOUNT_ID = data.aws_caller_identity.current.account_id
+    }
+    package = {
+      source_path = "${path.module}/lambda_files"
+    }
+  }
+  trigger_settings = {
+    sqs = {
+      inbound_sns_topics = [{
+        sns_arn            = aws_sns_topic.triggering_sns.arn
+        filter_policy_json = null
+      }]
+    }
+  }
+  execution_iam_role_settings = {
+    new_iam_role = {
+      permission_policy_json_list = [
+        data.aws_iam_policy_document.lambda_permission.json
+      ]
+    }
+  }
+  existing_kms_cmk_arn = aws_kms_key.lambda_cmk.arn
+  resource_tags        = var.resource_tags
 }
 ```
 
