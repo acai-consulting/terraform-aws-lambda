@@ -133,7 +133,7 @@ resource "aws_cloudwatch_log_group" "lambda_logs" {
 # ---------------------------------------------------------------------------------------------------------------------
 module "lambda_trigger" {
   source = "./modules/trigger"
-  count  = var.trigger_settings != null ? 1 : 0
+  count  = var.trigger_settings != {} ? 1 : 0
 
   trigger_settings     = var.trigger_settings
   existing_kms_cmk_arn = var.existing_kms_cmk_arn

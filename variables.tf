@@ -89,7 +89,6 @@ variable "lambda_settings" {
     condition     = can(length(var.lambda_settings.vpc_config.security_group_ids)) && can(length(var.lambda_settings.vpc_config.subnet_ids)) ? (length(var.lambda_settings.vpc_config.security_group_ids) > 0 && length(var.lambda_settings.vpc_config.subnet_ids) > 0) : true
     error_message = "Both security_group_ids and subnet_ids must be provided for VPC configuration."
   }
-
 }
 
 variable "trigger_settings" {
@@ -108,7 +107,7 @@ variable "trigger_settings" {
         }
       )), [])
     }), null)
-    schedule_expression = string
+    schedule_expression = optional(string)
     event_rules = optional(list(object({
       name           = string
       description    = optional(string, "")
@@ -116,45 +115,43 @@ variable "trigger_settings" {
       event_pattern  = string
     })), null)
   })
-  default = null
+  default = {}
 
   validation {
-    condition = var.trigger_settings.sqs == null ? true : length(var.trigger_settings.trigger_permissions) == 0 || alltrue([
-      for p in var.trigger_settings.trigger_permissions : can(regex(".+\\.amazonaws\\.com$|^\\d{12}$", p.principal)) && can(regex("^arn:aws:.+|^any$", p.source_arn))
+    condition     = alltrue([
+      for perm in try(var.trigger_settings.trigger_permissions, []) : 
+        can(regex(".+\\.amazonaws\\.com$|^\\d{12}$", perm.principal)) && can(regex("^arn:aws:.+|^any$", perm.source_arn))
     ])
-    error_message = "Invalid trigger_permissions configuration."
+    error_message = "Invalid trigger_permissions configuration. Principals must be AWS service principals or AWS account IDs, and Source ARNs must start with 'arn:aws:' or be 'any'."
   }
 
   validation {
-    condition     = var.trigger_settings.sqs == null ? true : var.trigger_settings.sqs.access_policy_json == null || can(jsondecode(var.trigger_settings.sqs.access_policy_json))
+    condition     = try(var.trigger_settings.sqs != null, false) ? can(jsondecode(try(var.trigger_settings.sqs.access_policy_json, ""))) : true
     error_message = "The SQS access policy JSON must be a valid JSON string."
   }
 
   validation {
-    condition = var.trigger_settings.sqs == null ? true : length(var.trigger_settings.sqs.inbound_sns_topics) == 0 || alltrue([
-      for p in var.trigger_settings.sqs.inbound_sns_topics : can(regex("^arn:aws:sns:", p))
+    condition     = alltrue([
+      for topic in try(var.trigger_settings.sqs.inbound_sns_topics, []) : 
+        can(regex("^arn:aws:sns:", topic.sns_arn))
     ])
-    error_message = "Values for trigger_settings.sqs.inbound_sns_topics must contain SNS ARN, starting with \"arn:aws:sns:\"."
+    error_message = "Values for trigger_settings.sqs.inbound_sns_topics must contain SNS ARN, starting with 'arn:aws:sns:'."
   }
 
   validation {
-    condition = var.trigger_settings.schedule_expression == null || can(
-      regex("^(rate\\([1-9]\\d*\\s+(minutes?|hours?|days?)\\))$", var.trigger_settings.schedule_expression)
-      ) || can(
-      regex("^cron\\((?:\\S+\\s+){5,6}\\S+\\)$", var.trigger_settings.schedule_expression)
-    )
+    condition     = try(var.trigger_settings.schedule_expression != null, false) ? (
+      can(regex("^(rate\\([1-9]\\d*\\s+(minute|minutes|hour|hours|day|days)\\))$", try(var.trigger_settings.schedule_expression, ""))) || 
+      can(regex("^cron\\((\\S+\\s+){5,6}\\S+\\)$", try(var.trigger_settings.schedule_expression, "")))
+    ) : true
     error_message = "The schedule_expression must be either a valid rate expression (e.g., 'rate(5 minutes)') or a cron expression (e.g., 'cron(0 20 * * ? *)')."
   }
 
   validation {
-    condition = length(var.trigger_settings.event_rules) == 0 ? true : alltrue([
-      for event_rule in var.trigger_settings.event_rules : (
-        can(jsondecode(event_rule.event_pattern)) ?
-        can(jsondecode(event_rule.event_pattern).source) :
-        false
-      )
+    condition     = alltrue([
+      for rule in try(var.trigger_settings.event_rules, []) : 
+        can(jsondecode(rule.event_pattern)) && can(jsondecode(rule.event_pattern)["source"])
     ])
-    error_message = "Values must be valid JSON and have \"source\" field set."
+    error_message = "Values for event_rules must be valid JSON and include a 'source' field."
   }
 }
 

@@ -49,29 +49,6 @@ terraform {
 # ¦ DATA
 # ---------------------------------------------------------------------------------------------------------------------
 data "aws_caller_identity" "current" {}
-data "aws_region" "current" {}
-
-# ---------------------------------------------------------------------------------------------------------------------
-# ¦ LOCALS
-# ---------------------------------------------------------------------------------------------------------------------
-locals {
-  execution_policy_name = format(
-    "%s_execution_policy",
-    var.function_name
-  )
-  triggering_event_rules = [{
-    name = "test_function_event"
-    event_pattern = jsonencode(
-      {
-        "source" : ["aws.ec2"],
-        "detail-type" : ["EC2 Instance State-change Notification"],
-        "detail" : {
-          "state" : ["terminated"]
-        }
-      }
-    )
-  }]
-}
 
 # ---------------------------------------------------------------------------------------------------------------------
 # ¦ LAMBDA EXECUTION POLICIES
@@ -116,10 +93,6 @@ module "test_lambda" {
     }
   }
 
-  trigger_settings = {
-    schedule_expression = "cron(0 12 * * ? *)"
-    event_rules         = local.triggering_event_rules
-  }
   execution_iam_role_settings = {
     new_iam_role = {
       permission_policy_json_list = [
