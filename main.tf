@@ -49,7 +49,7 @@ data "archive_file" "lambda_package" {
 }
 
 
-#tfsec:ignore:avd-aws-0066
+#tfsec:ignore:avd-aws-0066 Lambda functions should have X-Ray tracing enabled
 resource "aws_lambda_function" "this" {
   function_name = var.lambda_settings.function_name
   description   = var.lambda_settings.description
