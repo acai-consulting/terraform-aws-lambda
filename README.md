@@ -68,7 +68,6 @@ module "use_case_1_lambda" {
     environment_variables = {
       ACCOUNT_ID = data.aws_caller_identity.current.account_id
     }
-    tracing_mode = "PassThrough"
     package = {
       source_path = "${path.module}/lambda_files"
     }
@@ -91,28 +90,42 @@ This Lambda will list all Event-Rules and return them as JSON
 This Use-Case will create a Lambda, with a new Execution IAM Role and provides a lambda_permission policy-snip to perform the tasks.
 The Lambda will be scheduled and will be triggered by an Event Rule, listening for terminated EC2 instances.
 
-Location: [`./examples/use-case-1`](./examples/use-case-1/)
+Location: [`./examples/use-case-2`](./examples/use-case-2/)
 ``` hcl
 data "aws_caller_identity" "current" {}
 
+locals {
+  triggering_event_rules = [{
+    name = "use_case_2_event"
+    event_pattern = jsonencode(
+      {
+        "source" : ["aws.ec2"],
+        "detail-type" : ["EC2 Instance State-change Notification"],
+        "detail" : {
+          "state" : ["terminated"]
+        }
+      }
+    )
+  }]
+}
+
 data "aws_iam_policy_document" "lambda_permission" {
-  # enable IAM in logging account
   statement {
-    effect = "Allow"
-    actions = [
-      "logs:DescribeLogGroups",
-      "iam:ListRoles"
+    effect    = "Allow"
+    actions   = [
+      "events:List*",
+      "ec2:DescribeInstances"
     ]
     resources = ["*"]
   }
 }
 
-module "use_case_1_lambda" {
+module "test_lambda" {
   source = "../../"
 
   lambda_settings = {
     function_name = var.function_name
-    description   = "This Lambda will list all CloudWatch LogGroups and IAM Roles and return them as JSON"
+    description   = "This Lambda will list all Event-Rules and and EC2 instances and return them as JSON"
     handler       = "main.lambda_handler"
     config = {
       runtime     = "python3.12"
@@ -122,10 +135,14 @@ module "use_case_1_lambda" {
     environment_variables = {
       ACCOUNT_ID = data.aws_caller_identity.current.account_id
     }
-    tracing_mode = "PassThrough"
     package = {
       source_path = "${path.module}/lambda_files"
     }
+  }
+
+  trigger_settings = {
+    schedule_expression = "cron(0 1 * * ? *)"
+    event_rules         = local.triggering_event_rules
   }
 
   execution_iam_role_settings = {
@@ -140,8 +157,6 @@ module "use_case_1_lambda" {
 }
 ```
 
-
-* [`examples/use-case-2`](./examples/use-case-2/)
 
 <!-- BEGIN_TF_DOCS -->
 <!-- END_TF_DOCS -->

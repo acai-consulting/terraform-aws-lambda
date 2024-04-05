@@ -7,6 +7,7 @@ def lambda_handler(event, context):
     events_client = boto3.client('events')
     ec2_client = boto3.client('ec2')
 
+
     # Retrieve EventBridge Rules
     event_rules = events_client.list_rules()['Rules']
     event_rules_info = [{'ruleName': rule['Name'], 'ruleArn': rule['Arn']} for rule in event_rules]

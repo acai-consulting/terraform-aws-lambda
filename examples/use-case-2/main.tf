@@ -50,9 +50,6 @@ terraform {
 # ---------------------------------------------------------------------------------------------------------------------
 data "aws_caller_identity" "current" {}
 
-# ---------------------------------------------------------------------------------------------------------------------
-# ¦ LOCALS
-# ---------------------------------------------------------------------------------------------------------------------
 locals {
   triggering_event_rules = [{
     name = "use_case_2_event"
@@ -68,11 +65,7 @@ locals {
   }]
 }
 
-# ---------------------------------------------------------------------------------------------------------------------
-# ¦ LAMBDA EXECUTION POLICIES
-# ---------------------------------------------------------------------------------------------------------------------
 data "aws_iam_policy_document" "lambda_permission" {
-  # enable IAM in logging account
   statement {
     effect    = "Allow"
     actions   = [
@@ -83,11 +76,7 @@ data "aws_iam_policy_document" "lambda_permission" {
   }
 }
 
-# ---------------------------------------------------------------------------------------------------------------------
-# ¦ LAMBDA
-# ---------------------------------------------------------------------------------------------------------------------
-#tfsec:ignore:aws-lambda-enable-tracing
-module "test_lambda" {
+module "use_case_2_lambda" {
   source = "../../"
 
   lambda_settings = {
@@ -96,20 +85,19 @@ module "test_lambda" {
     handler       = "main.lambda_handler"
     config = {
       runtime     = "python3.12"
-      memory_size = 128
+      memory_size = 512
       timeout     = 360
     }
     environment_variables = {
       ACCOUNT_ID = data.aws_caller_identity.current.account_id
     }
-    tracing_mode = "PassThrough"
     package = {
       source_path = "${path.module}/lambda_files"
     }
   }
 
   trigger_settings = {
-    schedule_expression = "cron(0 12 * * ? *)"
+    schedule_expression = "cron(0 1 * * ? *)"
     event_rules         = local.triggering_event_rules
   }
 
@@ -124,13 +112,15 @@ module "test_lambda" {
   resource_tags = var.resource_tags
 }
 
-
-resource "aws_lambda_invocation" "test_lambda" {
-  function_name = module.test_lambda.lambda.name
+resource "aws_lambda_invocation" "use_case_2_lambda" {
+  function_name = module.use_case_2_lambda.lambda.name
 
   input = <<JSON
 {
 }
 JSON
+  depends_on = [ 
+    module.use_case_2_lambda
+  ]
 }
 

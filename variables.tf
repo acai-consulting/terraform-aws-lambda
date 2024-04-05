@@ -70,7 +70,7 @@ variable "lambda_settings" {
   }
 
   validation {
-    condition     = var.lambda_settings.tracing_mode == null || contains(["Active", "PassThrough"], var.lambda_settings.tracing_mode)
+    condition     = var.lambda_settings.tracing_mode == null ? true : contains(["Active", "PassThrough"], var.lambda_settings.tracing_mode)
     error_message = "Invalid tracing_mode value."
   }
 

@@ -6,11 +6,11 @@ output "lambda_arn" {
   value = module.use_case_1_lambda.lambda.arn
 }
 
-output "test_lambda" {
+output "use_case_1_lambda" {
   value = module.use_case_1_lambda
 }
 
-output "test_lambda_result" {
+output "use_case_1_lambda_result" {
   value = jsondecode(aws_lambda_invocation.use_case_1_lambda.result)
 }
 

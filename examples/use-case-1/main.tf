@@ -51,7 +51,6 @@ terraform {
 data "aws_caller_identity" "current" {}
 
 data "aws_iam_policy_document" "lambda_permission" {
-  # enable IAM in logging account
   statement {
     effect = "Allow"
     actions = [
@@ -71,13 +70,10 @@ module "use_case_1_lambda" {
     handler       = "main.lambda_handler"
     config = {
       runtime     = "python3.12"
-      memory_size = 128
-      timeout     = 360
     }
     environment_variables = {
       ACCOUNT_ID = data.aws_caller_identity.current.account_id
     }
-    tracing_mode = "PassThrough"
     package = {
       source_path = "${path.module}/lambda_files"
     }
@@ -94,12 +90,15 @@ module "use_case_1_lambda" {
   resource_tags = var.resource_tags
 }
 
-resource "aws_lambda_invocation" "test_lambda" {
+resource "aws_lambda_invocation" "use_case_1_lambda" {
   function_name = module.use_case_1_lambda.lambda.name
 
   input = <<JSON
 {
 }
 JSON
+  depends_on = [ 
+    module.use_case_1_lambda
+  ]
 }
 
