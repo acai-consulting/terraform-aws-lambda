@@ -42,7 +42,6 @@ locals {
 
   new_execution_iam_role = var.execution_iam_role_settings.new_iam_role
   policy_name_suffix     = local.create_new_execution_iam_role ? format("For%s-%s", replace(title(replace(replace(var.runtime_configuration.lambda_name, "-", " "), "_", " ")), " ", ""), local.region_name_short) : ""
-  policy_name            = "AllowLambdaContext${local.policy_name_suffix}"
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -83,7 +82,7 @@ resource "aws_iam_role_policy_attachment" "execution_role" {
 }
 
 resource "aws_iam_role_policy" "lambda_context" {
-  name   = local.policy_name
+  name   = "AllowLambdaContext${local.policy_name_suffix}"
   role   = local.create_new_execution_iam_role ? aws_iam_role.execution_role[0].name : data.aws_iam_role.existing_execution_iam_role[0].name
   policy = data.aws_iam_policy_document.lambda_context.json
 }
@@ -109,15 +108,15 @@ data "aws_iam_policy_document" "lambda_context" {
 
 
 resource "aws_iam_role_policy" "new_lambda_permission_policies" {
-  count  = local.new_execution_iam_role != null && can(local.new_execution_iam_role.permission_policy_json_list)  ? 1 : 0
+  count  = local.create_new_execution_iam_role && can(local.new_execution_iam_role.permission_policy_json_list)  ? 1 : 0
 
-  name   = local.policy_name
+  name   = "AllowCustomPermissions${local.policy_name_suffix}"
   role   = aws_iam_role.execution_role[0].name
   policy = data.aws_iam_policy_document.new_lambda_permission_policies[0].json
 }
 
 data "aws_iam_policy_document" "new_lambda_permission_policies" {
-  count  = local.new_execution_iam_role != null && can(local.new_execution_iam_role.permission_policy_json_list)  ? 1 : 0
+  count  = local.create_new_execution_iam_role && can(local.new_execution_iam_role.permission_policy_json_list)  ? 1 : 0
 
   source_policy_documents = local.new_execution_iam_role.permission_policy_json_list
 }

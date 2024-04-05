@@ -95,12 +95,10 @@ module "use_case_2_lambda" {
       source_path = "${path.module}/lambda_files"
     }
   }
-
   trigger_settings = {
     schedule_expression = "cron(0 1 * * ? *)"
     event_rules         = local.triggering_event_rules
   }
-
   execution_iam_role_settings = {
     new_iam_role = {
       permission_policy_json_list = [
@@ -108,7 +106,6 @@ module "use_case_2_lambda" {
       ]
     }
   }
-
   resource_tags = var.resource_tags
 }
 

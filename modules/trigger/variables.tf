@@ -5,11 +5,11 @@ variable "trigger_settings" {
       source_arn = string
     })), null)
     sqs = optional(object({
-      access_policy_json_list = list(string)
+      access_policy_json_list = optional(list(string), [])
       inbound_sns_topics = optional(list(object(
         {
           sns_arn            = string
-          filter_policy_json = string
+          filter_policy_json = optional(string, null)
         }
       )), [])
     }), null)

@@ -78,7 +78,6 @@ module "use_case_1_lambda" {
       source_path = "${path.module}/lambda_files"
     }
   }
-
   execution_iam_role_settings = {
     new_iam_role = {
       permission_policy_json_list = [
@@ -86,7 +85,6 @@ module "use_case_1_lambda" {
       ]
     }
   }
-
   resource_tags = var.resource_tags
 }
 

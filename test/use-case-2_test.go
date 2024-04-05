@@ -7,12 +7,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestLambdaUC1(t *testing.T) {
+func TestLambdaUC2(t *testing.T) {
 	// retryable errors in terraform testing.
 	t.Log("Starting lambda module test")
 
 	terraformOptions := &terraform.Options{
-		TerraformDir: "../examples/use-case-1",
+		TerraformDir: "../examples/use-case-2",
 		NoColor:      false,
 		Lock:         true,
 	}
@@ -20,7 +20,7 @@ func TestLambdaUC1(t *testing.T) {
 	defer terraform.Destroy(t, terraformOptions)
 	terraform.InitAndApply(t, terraformOptions)
 
-	lambdaResultOutput := terraform.OutputMap(t, terraformOptions, "use_case_1_lambda_result")
+	lambdaResultOutput := terraform.OutputMap(t, terraformOptions, "use_case_2_lambda_result")
 	t.Logf("Lambda Output: %s", lambdaResultOutput)
 
 	// Extract the statusCode and assert it

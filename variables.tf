@@ -99,10 +99,10 @@ variable "trigger_settings" {
       source_arn = string
     })), [])
     sqs = optional(object({
-      access_policy_json_list = list(string)
+      access_policy_json_list = optional(list(string), [])
       inbound_sns_topics = optional(list(object({
         sns_arn            = string
-        filter_policy_json = string
+        filter_policy_json = optional(string, null)
       })), [])
     }), null)
     schedule_expression = optional(string, null)
@@ -124,8 +124,13 @@ variable "trigger_settings" {
   }
 
   validation {
-    condition     = try(var.trigger_settings.sqs != null, false) ? can(jsondecode(try(var.trigger_settings.sqs.access_policy_json, ""))) : true
-    error_message = "The SQS access policy JSON must be a valid JSON string."
+    condition     = try(length(var.trigger_settings.sqs.access_policy_json_list) > 0, false) ? alltrue([for json_str in var.trigger_settings.sqs.access_policy_json_list : can(jsondecode(json_str))]) : true
+    error_message = "Each item in the SQS access policy JSON list must be a valid JSON string."
+  }
+
+  validation {
+    condition = try(var.trigger_settings.sqs != null && length(var.trigger_settings.sqs.inbound_sns_topics) > 0, false) ? alltrue([for topic in var.trigger_settings.sqs.inbound_sns_topics : can(jsondecode(topic.filter_policy_json)) || topic.filter_policy_json == null]) : true
+    error_message = "Each filter_policy_json in the SQS inbound SNS topics must be a valid JSON string or null."
   }
 
   validation {
