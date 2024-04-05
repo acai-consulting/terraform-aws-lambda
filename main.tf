@@ -30,10 +30,10 @@ locals {
   region_name_length = length(data.aws_region.current.name)
   region_name_short = format("%s%s%s",
     substr(data.aws_region.current.name, 0, 2),
-    substr(data.aws_region.current.name, 3, 1),                           
-    substr(data.aws_region.current.name, local.region_name_length - 1, 1) 
+    substr(data.aws_region.current.name, 3, 1),
+    substr(data.aws_region.current.name, local.region_name_length - 1, 1)
   )
-  loggroup_name    = "/aws/lambda/${var.lambda_settings.function_name}"
+  loggroup_name = "/aws/lambda/${var.lambda_settings.function_name}"
 }
 
 
