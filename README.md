@@ -281,6 +281,57 @@ module "use_case_3_lambda2" {
 ```
 
 <!-- BEGIN_TF_DOCS -->
+## Requirements
+
+| Name | Version |
+|------|---------|
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3.9 |
+| <a name="requirement_archive"></a> [archive](#requirement\_archive) | >= 2.0.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.00 |
+
+## Providers
+
+| Name | Version |
+|------|---------|
+| <a name="provider_archive"></a> [archive](#provider\_archive) | >= 2.0.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.00 |
+
+## Modules
+
+| Name | Source | Version |
+|------|--------|---------|
+| <a name="module_lambda_execution_iam_role"></a> [lambda\_execution\_iam\_role](#module\_lambda\_execution\_iam\_role) | ./modules/execution-iam-role | n/a |
+| <a name="module_lambda_trigger"></a> [lambda\_trigger](#module\_lambda\_trigger) | ./modules/trigger | n/a |
+
+## Resources
+
+| Name | Type |
+|------|------|
+| [aws_cloudwatch_log_group.lambda_logs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group) | resource |
+| [aws_iam_role_policy.triggering_sqs_permissions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
+| [aws_iam_role_policy_attachment.aws_xray_write_only_access](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
+| [aws_lambda_function.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_function) | resource |
+| [archive_file.lambda_package](https://registry.terraform.io/providers/hashicorp/archive/latest/docs/data-sources/file) | data source |
+| [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
+| [aws_iam_policy_document.triggering_sqs_permissions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source |
+
+## Inputs
+
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| <a name="input_lambda_settings"></a> [lambda\_settings](#input\_lambda\_settings) | Settings for the Lambda function. | <pre>object({<br>    function_name = string<br>    description   = string<br>    layer_names   = optional(list(string), null)<br>    handler       = string<br>    config = object({<br>      runtime                = string<br>      architecture           = optional(string, "x86_64")<br>      timeout                = optional(number, 30)<br>      memory_size            = optional(number, 512)<br>      ephemeral_storage_size = optional(number, 512)<br>      log_retention_in_days  = optional(number, 90)<br>    })<br>    package = object({<br>      type        = optional(string, "Zip")<br>      local_path  = optional(string, null)<br>      source_path = optional(string, null)<br>    })<br>    environment_variables          = optional(map(string), {})<br>    reserved_concurrent_executions = optional(number, -1)<br>    publish                        = optional(bool, false)<br>    tracing_mode                   = optional(string)<br>    file_system_config = optional(object({<br>      arn              = string<br>      local_mount_path = string<br>    }), null)<br>    image_config = optional(object({<br>      image_uri         = optional(string)<br>      command           = optional(list(string), null)<br>      entry_point       = optional(list(string), null)<br>      working_directory = optional(string, null)<br>    }), null)<br>    vpc_config = optional(object({<br>      security_group_ids = list(string)<br>      subnet_ids         = list(string)<br>    }), null)<br>  })</pre> | n/a | yes |
+| <a name="input_execution_iam_role_settings"></a> [execution\_iam\_role\_settings](#input\_execution\_iam\_role\_settings) | Settings of the for Lambda execution IAM role. | <pre>object({<br>    new_iam_role = optional(object({<br>      name                        = optional(string)<br>      path                        = optional(string, "/")<br>      permissions_boundary_arn    = optional(string)<br>      permission_policy_arn_list  = optional(list(string), [])<br>      permission_policy_json_list = optional(list(string), [])<br>    }), null)<br>    existing_iam_role_name = optional(string, null)<br>  })</pre> | <pre>{<br>  "new_iam_role": {<br>    "path": "/",<br>    "permission_policy_arn_list": [],<br>    "permission_policy_json_list": []<br>  }<br>}</pre> | no |
+| <a name="input_existing_kms_cmk_arn"></a> [existing\_kms\_cmk\_arn](#input\_existing\_kms\_cmk\_arn) | KMS key ARN to be used to encrypt logs and sqs messages. | `string` | `null` | no |
+| <a name="input_resource_tags"></a> [resource\_tags](#input\_resource\_tags) | A map of tags to assign to the resources in this module. | `map(string)` | `{}` | no |
+| <a name="input_trigger_settings"></a> [trigger\_settings](#input\_trigger\_settings) | Settings for the Lambda function's trigger settings, including permissions, SQS triggers, schedule expressions, and event rules. | <pre>object({<br>    trigger_permissions = optional(list(object({<br>      principal  = string<br>      source_arn = string<br>    })), [])<br>    sqs = optional(object({<br>      access_policy_json_list = optional(list(string), [])<br>      inbound_sns_topics = optional(list(object({<br>        sns_arn            = string<br>        filter_policy_json = optional(string, null)<br>      })), [])<br>    }), null)<br>    schedule_expression = optional(string, null)<br>    event_rules = optional(list(object({<br>      name           = string<br>      description    = optional(string, "")<br>      event_bus_name = optional(string, "default")<br>      event_pattern  = string<br>    })), [])<br>  })</pre> | `{}` | no |
+
+## Outputs
+
+| Name | Description |
+|------|-------------|
+| <a name="output_lambda"></a> [lambda](#output\_lambda) | Information about the Lambda. |
+| <a name="output_lambda_execution_iam_role"></a> [lambda\_execution\_iam\_role](#output\_lambda\_execution\_iam\_role) | Information about the Lambda execution role. |
 <!-- END_TF_DOCS -->
 
 <!-- AUTHORS -->
