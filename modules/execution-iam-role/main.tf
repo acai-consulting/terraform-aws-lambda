@@ -19,7 +19,7 @@ data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
 data "aws_iam_role" "existing_execution_iam_role" {
-  count = local.create_new_execution_iam_role == null ? 1 : 0
+  count = local.create_new_execution_iam_role == false ? 1 : 0
   name  = var.execution_iam_role_settings.existing_iam_role_name
 }
 
@@ -89,8 +89,6 @@ resource "aws_iam_role_policy" "lambda_context" {
 }
 
 data "aws_iam_policy_document" "lambda_context" {
-  source_policy_documents = local.new_execution_iam_role.permission_policy_json_list
-
   statement {
     sid       = "LogToCloudWatch"
     effect    = "Allow"
@@ -107,4 +105,19 @@ data "aws_iam_policy_document" "lambda_context" {
       resources = [var.existing_kms_cmk_arn]
     }
   }
+}
+
+
+resource "aws_iam_role_policy" "new_lambda_permission_policies" {
+  count  = local.new_execution_iam_role != null && can(local.new_execution_iam_role.permission_policy_json_list)  ? 1 : 0
+
+  name   = local.policy_name
+  role   = aws_iam_role.execution_role[0].name
+  policy = data.aws_iam_policy_document.new_lambda_permission_policies[0].json
+}
+
+data "aws_iam_policy_document" "new_lambda_permission_policies" {
+  count  = local.new_execution_iam_role != null && can(local.new_execution_iam_role.permission_policy_json_list)  ? 1 : 0
+
+  source_policy_documents = local.new_execution_iam_role.permission_policy_json_list
 }
