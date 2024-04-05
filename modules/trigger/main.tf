@@ -67,7 +67,7 @@ data "aws_iam_policy_document" "lambda_trigger_policy" {
   source_policy_documents = var.trigger_settings.sqs.access_policy_json_list
   statement {
     sid     = "EnableIamUserPermissions"
-    actions = ["sqs:*"]
+    actions = ["sqs:Get*", "sqs:List*"]
     effect  = "Allow"
     principals {
       type        = "AWS"
