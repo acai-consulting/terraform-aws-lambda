@@ -20,7 +20,6 @@ terraform {
 # ---------------------------------------------------------------------------------------------------------------------
 # ¦ DATA
 # ---------------------------------------------------------------------------------------------------------------------
-data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
 
@@ -31,10 +30,9 @@ locals {
   region_name_length = length(data.aws_region.current.name)
   region_name_short = format("%s%s%s",
     substr(data.aws_region.current.name, 0, 2),
-    substr(data.aws_region.current.name, 3, 1),                           // Assuming you want the character at index 3 (fourth character)
-    substr(data.aws_region.current.name, local.region_name_length - 1, 1) // Get the last character
+    substr(data.aws_region.current.name, 3, 1),                           
+    substr(data.aws_region.current.name, local.region_name_length - 1, 1) 
   )
-  trigger_sqs_name = "${aws_lambda_function.this.function_name}-trigger"
   loggroup_name    = "/aws/lambda/${var.lambda_settings.function_name}"
 }
 
