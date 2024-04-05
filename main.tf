@@ -2,7 +2,7 @@
 # ¦ REQUIREMENTS
 # ---------------------------------------------------------------------------------------------------------------------
 terraform {
-  required_version = ">= 1.3.9"
+  required_version = ">= 1.3.10"
 
   required_providers {
     aws = {
@@ -151,7 +151,7 @@ module "lambda_execution_iam_role" {
   source = "./modules/execution-iam-role"
 
   execution_iam_role_settings = var.execution_iam_role_settings
-  existing_kms_cmk_arn        = var.existing_kms_cmk_arn
+  existing_kms_cmk_arn = var.existing_kms_cmk_arn
   runtime_configuration = {
     lambda_name   = var.lambda_settings.function_name
     loggroup_name = local.loggroup_name

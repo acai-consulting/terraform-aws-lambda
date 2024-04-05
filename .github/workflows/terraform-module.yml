@@ -33,6 +33,25 @@ jobs:
       AWS_TESTBED_SECRET_ACCESS_KEY: ${{ secrets.AWS_TESTBED_SECRET_ACCESS_KEY }}
       AWS_TESTBED_DEFAULT_REGION: ${{ secrets.AWS_TESTBED_DEFAULT_REGION }}
 
+  tf_check_for_allowed_merge:
+    needs: [tf_module_base_job, tf_module_test_job]
+    if: ${{  github.event_name == 'pull_request' }}
+    runs-on: ${{ inputs.runner_type }}
+    steps:
+      - name: Check for failure condition        
+        run: |
+          # Check if all steps in tf_module_base_job have passed
+          if [ "${{ needs.tf_module_base_job.outputs.all_steps_passed }}" != 'true' ]; then
+            echo "Base job failed, failing the workflow"
+            exit 1
+          fi
+          # Check if all steps in tf_module_test_job have passed
+          if [ "${{ needs.tf_module_test_job.outputs.all_steps_passed }}" != 'true' ]; then
+            echo "Test job failed, failing the workflow"
+            exit 1
+          fi
+          echo "All checks passed, proceeding to release"
+                
   tfc_module_release:
     uses: acai-consulting/github-terraform-workflows/.github/workflows/tf-module-release.yml@main
     if: ${{ github.event_name == 'push' }}
