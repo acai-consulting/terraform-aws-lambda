@@ -35,32 +35,33 @@ locals {
   )
   create_new_execution_iam_role = var.execution_iam_role_settings.new_iam_role != null
 
-  new_execution_role_name = local.create_new_execution_iam_role ? coalesce(
+  new_execution_iam_role_name = local.create_new_execution_iam_role ? coalesce(
     var.execution_iam_role_settings.new_iam_role.name,
     "${var.runtime_configuration.lambda_name}_execution_role"
   ) : ""
 
-  policy_name_suffix = local.create_new_execution_iam_role ? format("For%s-%s", replace(title(replace(replace(var.runtime_configuration.lambda_name, "-", " "), "_", " "))," ", ""), local.region_name_short) : ""
-  policy_name        = "AllowLambdaContext${local.policy_name_suffix}"
+  new_execution_iam_role = var.execution_iam_role_settings.new_iam_role
+  policy_name_suffix     = local.create_new_execution_iam_role ? format("For%s-%s", replace(title(replace(replace(var.runtime_configuration.lambda_name, "-", " "), "_", " ")), " ", ""), local.region_name_short) : ""
+  policy_name            = "AllowLambdaContext${local.policy_name_suffix}"
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
 # ¦ LAMBDA EXECUTION IAM ROLE
 # ---------------------------------------------------------------------------------------------------------------------
-resource "aws_iam_role" "lambda" {
+resource "aws_iam_role" "execution_role" {
   count = local.create_new_execution_iam_role ? 1 : 0
 
-  name                 = local.new_execution_role_name
-  path                 = var.execution_iam_role_settings.new_iam_role.path
-  assume_role_policy   = data.aws_iam_policy_document.lambda.json
-  permissions_boundary = var.execution_iam_role_settings.new_iam_role.permissions_boundary_arn
+  name                 = local.new_execution_iam_role_name
+  path                 = local.new_execution_iam_role.path
+  assume_role_policy   = data.aws_iam_policy_document.execution_role_trust.json
+  permissions_boundary = local.new_execution_iam_role.permissions_boundary_arn
   tags                 = var.resource_tags
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
 # ¦ LAMBDA EXECUTION IAM POLICY
 # ---------------------------------------------------------------------------------------------------------------------
-data "aws_iam_policy_document" "lambda" {
+data "aws_iam_policy_document" "execution_role_trust" {
   statement {
     sid     = "TrustPolicy"
     effect  = "Allow"
@@ -75,19 +76,21 @@ data "aws_iam_policy_document" "lambda" {
 # ---------------------------------------------------------------------------------------------------------------------
 # ¦ ATTACH IAM POLICIES
 # ---------------------------------------------------------------------------------------------------------------------
-resource "aws_iam_role_policy_attachment" "lambda" {
-  count      = local.create_new_execution_iam_role ? length(var.execution_iam_role_settings.new_iam_role.permission_policy_arns) : 0
-  role       = aws_iam_role.lambda[0].name
-  policy_arn = var.execution_iam_role_settings.new_iam_role.permission_policy_arns[count.index]
+resource "aws_iam_role_policy_attachment" "execution_role" {
+  count      = local.create_new_execution_iam_role ? length(var.execution_iam_role_settings.new_iam_role.permission_policy_arn_list) : 0
+  role       = aws_iam_role.execution_role[0].name
+  policy_arn = local.new_execution_iam_role.permission_policy_arn_list[count.index]
 }
 
 resource "aws_iam_role_policy" "lambda_context" {
   name   = local.policy_name
-  role   = local.create_new_execution_iam_role ? aws_iam_role.lambda[0].name : data.aws_iam_role.existing_execution_iam_role[0].name
+  role   = local.create_new_execution_iam_role ? aws_iam_role.execution_role[0].name : data.aws_iam_role.existing_execution_iam_role[0].name
   policy = data.aws_iam_policy_document.lambda_context.json
 }
 
 data "aws_iam_policy_document" "lambda_context" {
+  source_policy_documents = local.new_execution_iam_role.permission_policy_json_list
+
   statement {
     sid       = "LogToCloudWatch"
     effect    = "Allow"

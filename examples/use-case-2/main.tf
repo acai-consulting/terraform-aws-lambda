@@ -76,15 +76,17 @@ locals {
 # ---------------------------------------------------------------------------------------------------------------------
 # ¦ LAMBDA EXECUTION POLICIES
 # ---------------------------------------------------------------------------------------------------------------------
-data "aws_iam_policy_document" "lambda_permission" {
+resource "aws_iam_policy" "list_users" {
+  name   = local.execution_policy_name
+  policy = data.aws_iam_policy_document.list_users.json
+}
+
+data "aws_iam_policy_document" "list_users" {
   # enable IAM in logging account
   statement {
-    sid    = "EnableOrganization"
-    effect = "Allow"
-    actions = [
-      "logs:DescribeLogGroups",
-      "iam:ListRoles"
-    ]
+    sid       = "EnableOrganization"
+    effect    = "Allow"
+    actions   = ["iam:ListUsers"]
     resources = ["*"]
   }
 }
@@ -120,23 +122,7 @@ module "test_lambda" {
     schedule_expression = "cron(0 12 * * ? *)"
     event_rules         = local.triggering_event_rules
   }
-  execution_iam_role_settings = {
-    new_iam_role = {
-      permission_policy_json_list = [
-        data.aws_iam_policy_document.lambda_permission.json
-      ]
-    }
-  }
+
 
   resource_tags = var.resource_tags
 }
-
-resource "aws_lambda_invocation" "test_lambda" {
-  function_name = module.test_lambda.lambda.name
-
-  input = <<JSON
-{
-}
-JSON
-}
-

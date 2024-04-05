@@ -2,10 +2,11 @@ variable "execution_iam_role_settings" {
   description = "Configuration of the for Lambda execution IAM role."
   type = object({
     new_iam_role = optional(object({
-      name                     = string
-      path                     = string
-      permissions_boundary_arn = string
-      permission_policy_arns   = list(string)
+      name                        = string
+      path                        = string
+      permissions_boundary_arn    = string
+      permission_policy_arn_list  = list(string)
+      permission_policy_json_list = list(string)
     }), null)
     existing_iam_role_name = optional(string, null)
   })
