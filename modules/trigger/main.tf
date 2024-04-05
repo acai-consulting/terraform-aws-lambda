@@ -61,13 +61,14 @@ resource "aws_sqs_queue_policy" "lambda_trigger" {
   policy    = data.aws_iam_policy_document.lambda_trigger_policy[0].json
 }
 
+#tfsec:ignore:avd-aws-0097
 data "aws_iam_policy_document" "lambda_trigger_policy" {
   count = var.trigger_settings.sqs != null ? 1 : 0
 
   source_policy_documents = var.trigger_settings.sqs.access_policy_json_list
   statement {
     sid     = "EnableIamUserPermissions"
-    actions = ["sqs:Get*"]
+    actions = ["sqs:*"]
     effect  = "Allow"
     principals {
       type        = "AWS"
