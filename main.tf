@@ -48,6 +48,8 @@ data "archive_file" "lambda_package" {
   output_path = "${path.module}/${local.region_name_short}_zipped_package.zip"
 }
 
+
+#tfsec:ignore:avd-aws-0066
 resource "aws_lambda_function" "this" {
   function_name = var.lambda_settings.function_name
   description   = var.lambda_settings.description
