@@ -2,7 +2,7 @@
 # ¦ PROVIDER
 # ---------------------------------------------------------------------------------------------------------------------
 provider "aws" {
-  region  = "eu-central-1"
+  region = "eu-central-1"
   # please use the target role you need.
   # create additional providers in case your module provisions to multiple core accounts.
   assume_role {
