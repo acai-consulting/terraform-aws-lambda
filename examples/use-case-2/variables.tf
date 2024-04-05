@@ -1,21 +1,12 @@
-variable "resource_tags" {
-  type = map(string)
-  default = {
-    Name = "test-kms-cmk"
-  }
-}
-
-# ---------------------------------------------------------------------------------------------------------------------
-# ¦ LAMBDA
-# ---------------------------------------------------------------------------------------------------------------------
 variable "function_name" {
   description = "Unique name for your Lambda Function."
   type        = string
-  default     = "local_test"
+  default     = "use_case_2"
 }
 
-variable "description" {
-  description = "Description of what your Lambda Function does."
-  type        = string
-  default     = ""
+variable "resource_tags" {
+  type = map(string)
+  default = {
+    scope = "use_case_2"
+  }
 }

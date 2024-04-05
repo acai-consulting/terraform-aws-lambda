@@ -1,16 +1,16 @@
 output "lambda_name" {
-  value = module.test_lambda.lambda.name
+  value = module.use_case_1_lambda.lambda.name
 }
 
 output "lambda_arn" {
-  value = module.test_lambda.lambda.arn
+  value = module.use_case_1_lambda.lambda.arn
 }
 
 output "test_lambda" {
-  value = module.test_lambda
+  value = module.use_case_1_lambda
 }
 
 output "test_lambda_result" {
-  value = jsondecode(aws_lambda_invocation.test_lambda.result)
+  value = jsondecode(aws_lambda_invocation.use_case_1_lambda.result)
 }
 

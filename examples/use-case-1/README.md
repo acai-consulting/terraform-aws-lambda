@@ -1,6 +1,6 @@
 # Lambda Function
 
-This example creates a Lambda Function with `VPC attachment`.
+This example creates a simple Lambda Function with additional permissions for the Lambda Execution Role.
 
 ## Which resources are deployed in this example?
 

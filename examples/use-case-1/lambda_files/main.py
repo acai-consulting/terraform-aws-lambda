@@ -4,6 +4,7 @@ import json
 
 ACCOUNT_ID = os.environ['ACCOUNT_ID']
 
+# This Lambda will list all CloudWatch LogGroups and IAM Roles and return them as JSON
 def lambda_handler(event, context):
     # Initialize clients
     logs_client = boto3.client('logs')

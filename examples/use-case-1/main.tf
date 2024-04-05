@@ -50,13 +50,9 @@ terraform {
 # ---------------------------------------------------------------------------------------------------------------------
 data "aws_caller_identity" "current" {}
 
-# ---------------------------------------------------------------------------------------------------------------------
-# ¦ LAMBDA EXECUTION POLICIES
-# ---------------------------------------------------------------------------------------------------------------------
 data "aws_iam_policy_document" "lambda_permission" {
   # enable IAM in logging account
   statement {
-    sid    = "EnableOrganization"
     effect = "Allow"
     actions = [
       "logs:DescribeLogGroups",
@@ -66,18 +62,12 @@ data "aws_iam_policy_document" "lambda_permission" {
   }
 }
 
-# ---------------------------------------------------------------------------------------------------------------------
-# ¦ LAMBDA
-# ---------------------------------------------------------------------------------------------------------------------
-#tfsec:ignore:aws-lambda-enable-tracing
-module "test_lambda" {
-  # source  = "nuvibit/lambda/aws"
-  # version = "~> 1.0"
+module "use_case_1_lambda" {
   source = "../../"
 
   lambda_settings = {
     function_name = var.function_name
-    description   = var.description
+    description   = "This Lambda will list all CloudWatch LogGroups and IAM Roles and return them as JSON"
     handler       = "main.lambda_handler"
     config = {
       runtime     = "python3.12"
@@ -105,7 +95,7 @@ module "test_lambda" {
 }
 
 resource "aws_lambda_invocation" "test_lambda" {
-  function_name = module.test_lambda.lambda.name
+  function_name = module.use_case_1_lambda.lambda.name
 
   input = <<JSON
 {

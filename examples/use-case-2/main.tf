@@ -49,18 +49,13 @@ terraform {
 # ¦ DATA
 # ---------------------------------------------------------------------------------------------------------------------
 data "aws_caller_identity" "current" {}
-data "aws_region" "current" {}
 
 # ---------------------------------------------------------------------------------------------------------------------
 # ¦ LOCALS
 # ---------------------------------------------------------------------------------------------------------------------
 locals {
-  execution_policy_name = format(
-    "%s_execution_policy",
-    var.function_name
-  )
   triggering_event_rules = [{
-    name = "test_function_event"
+    name = "use_case_2_event"
     event_pattern = jsonencode(
       {
         "source" : ["aws.ec2"],
@@ -76,17 +71,14 @@ locals {
 # ---------------------------------------------------------------------------------------------------------------------
 # ¦ LAMBDA EXECUTION POLICIES
 # ---------------------------------------------------------------------------------------------------------------------
-resource "aws_iam_policy" "list_users" {
-  name   = local.execution_policy_name
-  policy = data.aws_iam_policy_document.list_users.json
-}
-
-data "aws_iam_policy_document" "list_users" {
+data "aws_iam_policy_document" "lambda_permission" {
   # enable IAM in logging account
   statement {
-    sid       = "EnableOrganization"
     effect    = "Allow"
-    actions   = ["iam:ListUsers"]
+    actions   = [
+      "events:List*",
+      "ec2:DescribeInstances"
+    ]
     resources = ["*"]
   }
 }
@@ -96,13 +88,11 @@ data "aws_iam_policy_document" "list_users" {
 # ---------------------------------------------------------------------------------------------------------------------
 #tfsec:ignore:aws-lambda-enable-tracing
 module "test_lambda" {
-  # source  = "nuvibit/lambda/aws"
-  # version = "~> 1.0"
   source = "../../"
 
   lambda_settings = {
     function_name = var.function_name
-    description   = var.description
+    description   = "This Lambda will list all Event-Rules and and EC2 instances and return them as JSON"
     handler       = "main.lambda_handler"
     config = {
       runtime     = "python3.12"
@@ -123,6 +113,24 @@ module "test_lambda" {
     event_rules         = local.triggering_event_rules
   }
 
+  execution_iam_role_settings = {
+    new_iam_role = {
+      permission_policy_json_list = [
+        data.aws_iam_policy_document.lambda_permission.json
+      ]
+    }
+  }
 
   resource_tags = var.resource_tags
 }
+
+
+resource "aws_lambda_invocation" "test_lambda" {
+  function_name = module.test_lambda.lambda.name
+
+  input = <<JSON
+{
+}
+JSON
+}
+

@@ -2,26 +2,32 @@ import os
 import boto3
 import json
 
-ACCOUNT_ID = os.environ['ACCOUNT_ID']
-
 def lambda_handler(event, context):
     # Initialize clients
-    logs_client = boto3.client('logs')
-    iam_client = boto3.client('iam')
+    events_client = boto3.client('events')
+    ec2_client = boto3.client('ec2')
 
-    # Retrieve CloudWatch Log Groups
-    log_groups = logs_client.describe_log_groups()['logGroups']
-    log_groups_info = [{'logGroupName': lg['logGroupName']} for lg in log_groups]
+    # Retrieve EventBridge Rules
+    event_rules = events_client.list_rules()['Rules']
+    event_rules_info = [{'ruleName': rule['Name'], 'ruleArn': rule['Arn']} for rule in event_rules]
 
-    # Retrieve IAM Roles
-    iam_roles = iam_client.list_roles()['Roles']
-    iam_roles_info = [{'roleName': role['RoleName'], 'roleId': role['RoleId']} for role in iam_roles]
+    # Retrieve EC2 Instances
+    ec2_instances = ec2_client.describe_instances()
+    ec2_instances_info = []
+    for reservation in ec2_instances['Reservations']:
+        for instance in reservation['Instances']:
+            instance_info = {
+                'instanceId': instance['InstanceId'],
+                'instanceType': instance['InstanceType'],
+                'state': instance['State']['Name']
+            }
+            ec2_instances_info.append(instance_info)
 
     # Construct response
     response = {
-        'AccountId': ACCOUNT_ID,
-        'LogGroups': log_groups_info,
-        'IAMRoles': iam_roles_info,
+        'AccountId': os.environ['ACCOUNT_ID'],
+        'EventRules': event_rules_info,
+        'EC2Instances': ec2_instances_info,
     }
 
     # Return JSON response
