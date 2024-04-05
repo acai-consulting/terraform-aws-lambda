@@ -97,30 +97,28 @@ variable "trigger_settings" {
     trigger_permissions = optional(list(object({
       principal  = string
       source_arn = string
-    })), null)
+    })), [])
     sqs = optional(object({
       access_policy_json_list = list(string)
-      inbound_sns_topics = optional(list(object(
-        {
-          sns_arn            = string
-          filter_policy_json = string
-        }
-      )), [])
+      inbound_sns_topics = optional(list(object({
+        sns_arn            = string
+        filter_policy_json = string
+      })), [])
     }), null)
-    schedule_expression = optional(string)
+    schedule_expression = optional(string, null)
     event_rules = optional(list(object({
       name           = string
       description    = optional(string, "")
       event_bus_name = optional(string, "default")
       event_pattern  = string
-    })), null)
+    })), [])
   })
   default = {}
 
   validation {
-    condition     = alltrue([
+    condition = alltrue([
       for perm in try(var.trigger_settings.trigger_permissions, []) : 
-        can(regex(".+\\.amazonaws\\.com$|^\\d{12}$", perm.principal)) && can(regex("^arn:aws:.+|^any$", perm.source_arn))
+      can(regex(".+\\.amazonaws\\.com$|^\\d{12}$", perm.principal)) && can(regex("^arn:aws:.+|^any$", perm.source_arn))
     ])
     error_message = "Invalid trigger_permissions configuration. Principals must be AWS service principals or AWS account IDs, and Source ARNs must start with 'arn:aws:' or be 'any'."
   }
@@ -131,7 +129,7 @@ variable "trigger_settings" {
   }
 
   validation {
-    condition     = alltrue([
+    condition = can(var.trigger_settings.sqs) && alltrue([
       for topic in try(var.trigger_settings.sqs.inbound_sns_topics, []) : 
         can(regex("^arn:aws:sns:", topic.sns_arn))
     ])
@@ -169,8 +167,8 @@ variable "execution_iam_role_settings" {
   })
   default = {
     new_iam_role = {
-      path                       = "/"
-      permission_policy_arn_list = []
+      path                        = "/"
+      permission_policy_arn_list  = []
       permission_policy_json_list = []
     }
   }
