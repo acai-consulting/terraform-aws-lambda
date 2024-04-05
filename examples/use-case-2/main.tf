@@ -81,7 +81,7 @@ module "use_case_2_lambda" {
     description   = "This Lambda will list all Event-Rules and and EC2 instances and return them as JSON"
     handler       = "main.lambda_handler"
     config = {
-      runtime     = "python3.12"
+      runtime     = "python3.10"
       memory_size = 512
       timeout     = 360
     }

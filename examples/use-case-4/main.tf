@@ -147,7 +147,7 @@ module "use_case_4_lambda" {
     description   = "This Lambda will list all CloudWatch LogGroups and IAM Roles and return them as JSON"
     handler       = "main.lambda_handler"
     config = {
-      runtime = "python3.12"
+      runtime = "python3.10"
     }
     environment_variables = {
       ACCOUNT_ID = data.aws_caller_identity.current.account_id

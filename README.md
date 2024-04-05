@@ -61,7 +61,7 @@ module "use_case_1_lambda" {
     description   = "This Lambda will list all CloudWatch LogGroups and IAM Roles and return them as JSON"
     handler       = "main.lambda_handler"
     config = {
-      runtime     = "python3.12"
+      runtime     = "python3.10"
       memory_size = 128
       timeout     = 360
     }
@@ -128,7 +128,7 @@ module "test_lambda" {
     description   = "This Lambda will list all Event-Rules and and EC2 instances and return them as JSON"
     handler       = "main.lambda_handler"
     config = {
-      runtime     = "python3.12"
+      runtime     = "python3.10"
       memory_size = 128
       timeout     = 360
     }
@@ -218,7 +218,7 @@ module "use_case_3_lambda1" {
     description   = "This Lambda will list all CloudWatch LogGroups and IAM Roles and return them as JSON"
     handler       = "main.lambda_handler"
     config = {
-      runtime = "python3.12"
+      runtime = "python3.10"
     }
     environment_variables = {
       ACCOUNT_ID = data.aws_caller_identity.current.account_id
@@ -262,7 +262,7 @@ module "use_case_3_lambda2" {
     description   = "This Lambda will list all Event-Rules and and EC2 instances and return them as JSON"
     handler       = "main.lambda_handler"
     config = {
-      runtime     = "python3.12"
+      runtime     = "python3.10"
       memory_size = 512
       timeout     = 360
     }
@@ -399,7 +399,7 @@ module "use_case_4_lambda" {
     description   = "This Lambda will list all CloudWatch LogGroups and IAM Roles and return them as JSON"
     handler       = "main.lambda_handler"
     config = {
-      runtime = "python3.12"
+      runtime = "python3.10"
     }
     environment_variables = {
       ACCOUNT_ID = data.aws_caller_identity.current.account_id
