@@ -117,7 +117,7 @@ variable "trigger_settings" {
 
   validation {
     condition = alltrue([
-      for perm in try(var.trigger_settings.trigger_permissions, []) : 
+      for perm in try(var.trigger_settings.trigger_permissions, []) :
       can(regex(".+\\.amazonaws\\.com$|^\\d{12}$", perm.principal)) && can(regex("^arn:aws:.+|^any$", perm.source_arn))
     ])
     error_message = "Invalid trigger_permissions configuration. Principals must be AWS service principals or AWS account IDs, and Source ARNs must start with 'arn:aws:' or be 'any'."
@@ -129,30 +129,30 @@ variable "trigger_settings" {
   }
 
   validation {
-    condition = try(var.trigger_settings.sqs != null && length(var.trigger_settings.sqs.inbound_sns_topics) > 0, false) ? alltrue([for topic in var.trigger_settings.sqs.inbound_sns_topics : can(jsondecode(topic.filter_policy_json)) || topic.filter_policy_json == null]) : true
+    condition     = try(var.trigger_settings.sqs != null && length(var.trigger_settings.sqs.inbound_sns_topics) > 0, false) ? alltrue([for topic in var.trigger_settings.sqs.inbound_sns_topics : can(jsondecode(topic.filter_policy_json)) || topic.filter_policy_json == null]) : true
     error_message = "Each filter_policy_json in the SQS inbound SNS topics must be a valid JSON string or null."
   }
 
   validation {
     condition = can(var.trigger_settings.sqs) && alltrue([
-      for topic in try(var.trigger_settings.sqs.inbound_sns_topics, []) : 
-        can(regex("^arn:aws:sns:", topic.sns_arn))
+      for topic in try(var.trigger_settings.sqs.inbound_sns_topics, []) :
+      can(regex("^arn:aws:sns:", topic.sns_arn))
     ])
     error_message = "Values for trigger_settings.sqs.inbound_sns_topics must contain SNS ARN, starting with 'arn:aws:sns:'."
   }
 
   validation {
-    condition     = try(var.trigger_settings.schedule_expression != null, false) ? (
-      can(regex("^(rate\\([1-9]\\d*\\s+(minute|minutes|hour|hours|day|days)\\))$", try(var.trigger_settings.schedule_expression, ""))) || 
+    condition = try(var.trigger_settings.schedule_expression != null, false) ? (
+      can(regex("^(rate\\([1-9]\\d*\\s+(minute|minutes|hour|hours|day|days)\\))$", try(var.trigger_settings.schedule_expression, ""))) ||
       can(regex("^cron\\((\\S+\\s+){5,6}\\S+\\)$", try(var.trigger_settings.schedule_expression, "")))
     ) : true
     error_message = "The schedule_expression must be either a valid rate expression (e.g., 'rate(5 minutes)') or a cron expression (e.g., 'cron(0 20 * * ? *)')."
   }
 
   validation {
-    condition     = alltrue([
-      for rule in try(var.trigger_settings.event_rules, []) : 
-        can(jsondecode(rule.event_pattern)) && can(jsondecode(rule.event_pattern)["source"])
+    condition = alltrue([
+      for rule in try(var.trigger_settings.event_rules, []) :
+      can(jsondecode(rule.event_pattern)) && can(jsondecode(rule.event_pattern)["source"])
     ])
     error_message = "Values for event_rules must be valid JSON and include a 'source' field."
   }

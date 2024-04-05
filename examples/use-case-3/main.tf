@@ -112,7 +112,7 @@ module "use_case_3_lambda1" {
   execution_iam_role_settings = {
     existing_iam_role_name = aws_iam_role.lambda_exec_role.name
   }
-  resource_tags        = var.resource_tags
+  resource_tags = var.resource_tags
   depends_on = [
     aws_iam_role.lambda_exec_role
   ]
@@ -162,7 +162,7 @@ module "use_case_3_lambda2" {
   execution_iam_role_settings = {
     existing_iam_role_name = aws_iam_role.lambda_exec_role.name
   }
-  resource_tags        = var.resource_tags
+  resource_tags = var.resource_tags
   depends_on = [
     aws_iam_role.lambda_exec_role
   ]

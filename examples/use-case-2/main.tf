@@ -67,8 +67,8 @@ locals {
 
 data "aws_iam_policy_document" "lambda_permission" {
   statement {
-    effect    = "Allow"
-    actions   = [
+    effect = "Allow"
+    actions = [
       "events:List*",
       "ec2:DescribeInstances"
     ]
@@ -116,7 +116,7 @@ resource "aws_lambda_invocation" "use_case_2_lambda" {
 {
 }
 JSON
-  depends_on = [ 
+  depends_on = [
     module.use_case_2_lambda
   ]
 }

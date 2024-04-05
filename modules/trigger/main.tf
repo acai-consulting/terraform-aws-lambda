@@ -50,7 +50,7 @@ resource "aws_sqs_queue" "lambda_trigger" {
 
   name                       = local.trigger_sqs_name
   kms_master_key_id          = var.existing_kms_cmk_arn
-  visibility_timeout_seconds = var.runtime_configuration.lambda_timeout+100 # at least the max Lambda execution time plus some buffer
+  visibility_timeout_seconds = var.runtime_configuration.lambda_timeout + 100 # at least the max Lambda execution time plus some buffer
   tags                       = var.resource_tags
 }
 
