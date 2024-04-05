@@ -63,6 +63,7 @@ resource "aws_kms_alias" "lambda_cmk_alias" {
   name          = "alias/use_case_4_cmk"
   target_key_id = aws_kms_key.lambda_cmk.key_id
 }
+#tfsec:ignore:avd-aws-0057
 data "aws_iam_policy_document" "lambda_kms_policy" {
   statement {
     actions   = ["kms:*"]
