@@ -5,8 +5,8 @@
     <td valign="top">
       <!-- SHIELDS -->
       <a href="https://acai.gmbh">
-        <img src="https://img.shields.io/badge/maintained_by-acai.gmbh-CB224B?style=flat" alt="Maintained by acai.gmbh" height="20px"/>
-      </a>
+        <img src="https://img.shields.io/badge/maintained_by-acai.gmbh-CB224B?style=flat" alt="Maintained by acai.gmbh" width="156" height="20px"/>
+      </a><br/>
       <a href="https://www.terraform.io/upgrade-guides/1-3-10.html">
         <img src="https://img.shields.io/badge/tf-%3E%3D1.3.10-blue.svg?style=flat&color=blueviolet" alt="Terraform Version" height="20px"/>
       </a>
