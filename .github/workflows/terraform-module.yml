@@ -60,4 +60,4 @@ jobs:
       semantic_release_config_repo_ref: "main"
       release_branch: "main"
     secrets:
-      GHE_API_TOKEN: ${{ secrets.GH_ACF_BSL_API_TOKEN }}
+      GHE_API_TOKEN: ${{ secrets.GH_ACAI_PUBLIC_API_TOKEN }}
