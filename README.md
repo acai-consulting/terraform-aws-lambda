@@ -1,24 +1,18 @@
 # terraform-aws-lambda
+<!-- SHIELDS -->
+[![Maintained by acai.gmbh][acai-shield]][acai-url] 
+[![Terraform Version][terraform-version-shield]][terraform-version-url]
 
-<table  border="0" cellpadding="0" cellspacing="0" style="width: 100%;">
-  <tr>
-    <td valign="top"  style="width: 50%;" >
-      <!-- SHIELDS -->
-      <a href="https://acai.gmbh">
-        <img src="https://img.shields.io/badge/maintained_by-acai.gmbh-CB224B?style=flat" alt="Maintained by acai.gmbh" width="156px" height="20px"/>
-      </a><br/>
-      <a href="https://www.terraform.io/upgrade-guides/1-3-10.html">
-        <img src="https://img.shields.io/badge/tf-%3E%3D1.3.10-blue.svg?style=flat&color=blueviolet" alt="Terraform Version" height="20px"/>
-      </a>
-    </td>
-    <td valign="top"  style="width: 50%; text-align: right;">
-      <!-- LOGO -->
-      <a href="https://acai.gmbh">
-        <img src="https://github.com/acai-consulting/acai.public/raw/main/logo/logo_github_readme.png" alt="acai logo" title="ACAI" width="40%"/>
-      </a>
-    </td>
-    </tr>
-</table>
+<!-- LOGO -->
+<div style="text-align: right; margin-top: -60px;">
+<a href="https://acai.gmbh">
+  <img src="https://github.com/acai-consulting/acai.public/raw/main/logo/logo_github_readme.png" alt="acai logo" title="ACAI"  width="250" />
+</a>
+</div>
+
+
+
+
 
 <!-- DESCRIPTION -->
 [Terraform][terraform-url] module to deploy Lambda resources on [AWS][aws-url]
@@ -26,7 +20,7 @@
 <!-- ARCHITECTURE -->
 ## Architecture
 
-![architecture](./docs/terraform-aws-lambda.png)
+![architecture](https://raw.githubusercontent.com/acai-consulting/terraform-aws-lambda/main/docs/terraform-aws-lambda.svg)
 
 <!-- FEATURES -->
 ## Features
@@ -516,6 +510,9 @@ See [LICENSE][license-url] for full details.
 
 <!-- MARKDOWN LINKS & IMAGES -->
 [acai-url]: https://acai.gmbh
+[acai-shield]: https://img.shields.io/badge/maintained_by-acai.gmbh-CB224B?style=flat
+[terraform-version-shield]: https://img.shields.io/badge/tf-%3E%3D1.3.10-blue.svg?style=flat&color=blueviolet
+[terraform-version-url]: https://www.terraform.io/upgrade-guides/1-3-10.html
 [license-url]: ./LICENSE
 [terraform-url]: https://www.terraform.io
 [aws-url]: https://aws.amazon.comterraform-aws-acf-ou-mgmt/tree/main/examples/complete
