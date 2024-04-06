@@ -6,13 +6,9 @@
 <!-- LOGO -->
 <div style="text-align: right; margin-top: -60px;">
 <a href="https://acai.gmbh">
-  <img src="https://github.com/acai-consulting/acai.public/raw/main/logo/logo_github_readme.png" alt="acai logo" title="ACAI"  width="250" />
-</a>
+  <img src="https://github.com/acai-consulting/acai.public/raw/main/logo/logo_github_readme.png" alt="acai logo" title="ACAI"  width="250" /></a>
 </div>
-
-
-
-
+</br>
 
 <!-- DESCRIPTION -->
 [Terraform][terraform-url] module to deploy Lambda resources on [AWS][aws-url]
