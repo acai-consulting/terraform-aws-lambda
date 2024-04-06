@@ -4,7 +4,7 @@
 <a href="https://acai.gmbh">
   <img src="https://github.com/acai-consulting/acai.public/raw/main/logo/logo_github_readme.png" alt="acai logo" title="ACAI" align="right" height="75" />
 </a>
-
+</br>
 <!-- SHIELDS -->
 [![Maintained by acai.gmbh][acai-shield]][acai-url]
 [![Terraform Version][terraform-version-shield]][terraform-version-url]
