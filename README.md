@@ -2,8 +2,9 @@
 
 <!-- LOGO -->
 <a href="https://acai.gmbh">
-  <img src="https://github.com/acai-consulting/acai.public/raw/main/logo/logo_github_readme.png" alt="acai logo" title="ACAI" align="right" height="75" />
+  <img src="https://github.com/acai-consulting/acai.public/raw/main/logo/logo_github_readme.png" alt="acai logo" title="ACAI" align="right" width="350" />
 </a>
+</br>
 
 <!-- SHIELDS -->
 [![Maintained by acai.gmbh][acai-shield]][acai-url]
@@ -16,15 +17,15 @@
 <!-- ARCHITECTURE -->
 ## Architecture
 
-![architecture](./docs/terraform-aws-lambda.svg)
+![architecture](./docs/terraform-aws-lambda.png)
 
 <!-- FEATURES -->
 ## Features
 * Creates a Lambda Function
 * Creates a CloudWatch Log Group for Lambda logs
 * Execution IAM Role
-  * Option 1: Create a new Lambda Execution IAM Role and attach internal and provided policies
-  * Option 2: Provide the ARN of an existing Lambda Execution IAM Role
+  * Option 1: Create a new Lambda Execution IAM Role and attach default and provided policies
+  * Option 2: Provide the name of an existing Lambda Execution IAM Role
 * Triggers (optional)
   * Create a SQS for triggering the Lambda
   * Create a scheduling Event Rule
@@ -290,7 +291,7 @@ module "use_case_3_lambda2" {
 ### Use-Case 4
 In this Use-Case an 'existing' KMS CMK will be provided and a SQS will be enabled.
 The Lambda module will provision the SQS and wire it up with the Lambda.
-THe KMS CMK will be used for the SQS queue and the CloudWatch LogGroup.
+The KMS CMK will be used for the SQS queue and the CloudWatch LogGroup.
 
 Location: [`./examples/use-case-4`](./examples/use-case-4/)
 ``` hcl
