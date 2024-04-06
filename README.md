@@ -2,9 +2,10 @@
 
 <!-- LOGO -->
 <a href="https://acai.gmbh">
-  <img src="https://github.com/acai-consulting/acai.public/raw/main/logo/logo_github_readme.png" alt="acai logo" title="ACAI" align="right" height="75" />
+  <img src="https://github.com/acai-consulting/acai.public/raw/main/logo/logo_github_readme.png" alt="acai logo" title="ACAI" align="right" width="350" />
 </a>
 </br>
+
 <!-- SHIELDS -->
 [![Maintained by acai.gmbh][acai-shield]][acai-url]
 [![Terraform Version][terraform-version-shield]][terraform-version-url]
@@ -16,15 +17,15 @@
 <!-- ARCHITECTURE -->
 ## Architecture
 
-![architecture](./docs/terraform-aws-lambda.svg)
+![architecture](./docs/terraform-aws-lambda.png)
 
 <!-- FEATURES -->
 ## Features
 * Creates a Lambda Function
 * Creates a CloudWatch Log Group for Lambda logs
 * Execution IAM Role
-  * Option 1: Create a new Lambda Execution IAM Role and attach internal and provided policies
-  * Option 2: Provide the ARN of an existing Lambda Execution IAM Role
+  * Option 1: Create a new Lambda Execution IAM Role and attach default and provided policies
+  * Option 2: Provide the name of an existing Lambda Execution IAM Role
 * Triggers (optional)
   * Create a SQS for triggering the Lambda
   * Create a scheduling Event Rule
