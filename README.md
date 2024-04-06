@@ -291,7 +291,7 @@ module "use_case_3_lambda2" {
 ### Use-Case 4
 In this Use-Case an 'existing' KMS CMK will be provided and a SQS will be enabled.
 The Lambda module will provision the SQS and wire it up with the Lambda.
-THe KMS CMK will be used for the SQS queue and the CloudWatch LogGroup.
+The KMS CMK will be used for the SQS queue and the CloudWatch LogGroup.
 
 Location: [`./examples/use-case-4`](./examples/use-case-4/)
 ``` hcl
