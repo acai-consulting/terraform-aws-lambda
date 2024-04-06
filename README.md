@@ -1,13 +1,24 @@
 # terraform-aws-lambda
 
-<!-- LOGO -->
-<a href="https://acai.gmbh">
-  <img src="https://github.com/acai-consulting/acai.public/raw/main/logo/logo_github_readme.png" alt="acai logo" title="ACAI" align="right" width="240pct" />
-</a>
-
-<!-- SHIELDS -->
-[![Maintained by acai.gmbh][acai-shield]][acai-url]
-[![Terraform Version][terraform-version-shield]][terraform-version-url]
+<table border="0" cellpadding="0" cellspacing="0">
+  <tr>
+    <td valign="top">
+      <!-- SHIELDS -->
+      <a href="https://acai.gmbh">
+        <img src="https://img.shields.io/badge/maintained_by-acai.gmbh-CB224B?style=flat" alt="Maintained by acai.gmbh" height="20px"/>
+      </a>
+      <a href="https://www.terraform.io/upgrade-guides/1-3-10.html">
+        <img src="https://img.shields.io/badge/tf-%3E%3D1.3.10-blue.svg?style=flat&color=blueviolet" alt="Terraform Version" height="20px"/>
+      </a>
+    </td>
+    <td valign="top">
+      <!-- LOGO -->
+      <a href="https://acai.gmbh">
+        <img src="https://github.com/acai-consulting/acai.public/raw/main/logo/logo_github_readme.png" alt="acai logo" align="right" title="ACAI" width="40%"/>
+      </a>
+    </td>
+    </tr>
+</table>
 
 <!-- DESCRIPTION -->
 [Terraform][terraform-url] module to deploy Lambda resources on [AWS][aws-url]
@@ -496,9 +507,7 @@ See [LICENSE][license-url] for full details.
 <p align="center">Copyright &copy; 2024 ACAI GmbH</p>
 
 <!-- MARKDOWN LINKS & IMAGES -->
-[acai-shield]: https://img.shields.io/badge/maintained_by-acai.gmbh-CB224B?style=flat
 [acai-url]: https://acai.gmbh
-[terraform-version-shield]: https://img.shields.io/badge/tf-%3E%3D1.3.10-blue.svg?style=flat&color=blueviolet
 [terraform-version-url]: https://www.terraform.io/upgrade-guides/1-3-10.html
 [release-shield]: https://img.shields.io/github/v/release/acai-consulting/terraform-aws-acf-ou-mgmt?style=flat&color=success
 [architecture-png]: ./docs/terraform-aws-acf-core-configuration.png
