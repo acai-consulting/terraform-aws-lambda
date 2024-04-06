@@ -36,7 +36,7 @@ jobs:
   tf_check_for_allowed_merge:
     needs: [tf_module_base_job, tf_module_test_job]
     if: ${{  github.event_name == 'pull_request' }}
-    runs-on: ${{ inputs.runner_type }}
+    runs-on: "ubuntu-latest"
     steps:
       - name: Check for failure condition        
         run: |
