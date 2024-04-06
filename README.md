@@ -2,9 +2,8 @@
 
 <!-- LOGO -->
 <a href="https://acai.gmbh">
-  <img src="https://github.com/acai-consulting/acai.public/raw/main/logo/logo_github_readme.png" alt="acai logo" title="ACAI" align="right" width="350" />
+  <img src="https://github.com/acai-consulting/acai.public/raw/main/logo/logo_github_readme.png" alt="acai logo" title="ACAI" align="right" width="240pct" />
 </a>
-</br>
 
 <!-- SHIELDS -->
 [![Maintained by acai.gmbh][acai-shield]][acai-url]
@@ -36,7 +35,7 @@
 
 ### Use-Case 1
 This Lambda will list all CloudWatch LogGroups and IAM Roles and return them as JSON.
-This Use-Case will create a Lambda, with a new Execution IAM Role and provides a lambda_permission policy-snip to perform the tasks.
+This use-case will create a Lambda, with a new Execution IAM Role and provides a lambda_permission policy-snip to perform the tasks.
 
 Location: [`./examples/use-case-1`](./examples/use-case-1/)
 ``` hcl
@@ -88,7 +87,7 @@ module "use_case_1_lambda" {
 
 ### Use-Case 2
 This Lambda will list all Event-Rules and return them as JSON
-This Use-Case will create a Lambda, with a new Execution IAM Role and provides a lambda_permission policy-snip to perform the tasks.
+This use-case will create a Lambda, with a new Execution IAM Role and provides a lambda_permission policy-snip to perform the tasks.
 The Lambda will be scheduled and will be triggered by an Event Rule, listening for terminated EC2 instances.
 
 Location: [`./examples/use-case-2`](./examples/use-case-2/)
@@ -159,7 +158,7 @@ module "test_lambda" {
 ```
 
 ### Use-Case 3
-In this Use-Case two Lambdas will share an IAM Role that is "externally" provided.
+In this use-case two Lambdas will share an IAM Role that is "externally" provided.
 
 Location: [`./examples/use-case-3`](./examples/use-case-3/)
 ``` hcl
@@ -289,7 +288,7 @@ module "use_case_3_lambda2" {
 ```
 
 ### Use-Case 4
-In this Use-Case an 'existing' KMS CMK will be provided and a SQS will be enabled.
+In this use-case an 'existing' KMS CMK will be provided and a SQS will be enabled.
 The Lambda module will provision the SQS and wire it up with the Lambda.
 The KMS CMK will be used for the SQS queue and the CloudWatch LogGroup.
 
