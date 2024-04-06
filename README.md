@@ -1,20 +1,20 @@
 # terraform-aws-lambda
 
-<table border="0" cellpadding="0" cellspacing="0">
+<table  border="0" cellpadding="0" cellspacing="0" style="width: 100%;">
   <tr>
-    <td valign="top">
+    <td valign="top"  style="width: 50%;" >
       <!-- SHIELDS -->
       <a href="https://acai.gmbh">
-        <img src="https://img.shields.io/badge/maintained_by-acai.gmbh-CB224B?style=flat" alt="Maintained by acai.gmbh" width="156" height="20px"/>
+        <img src="https://img.shields.io/badge/maintained_by-acai.gmbh-CB224B?style=flat" alt="Maintained by acai.gmbh" width="156px" height="20px"/>
       </a><br/>
       <a href="https://www.terraform.io/upgrade-guides/1-3-10.html">
         <img src="https://img.shields.io/badge/tf-%3E%3D1.3.10-blue.svg?style=flat&color=blueviolet" alt="Terraform Version" height="20px"/>
       </a>
     </td>
-    <td valign="top">
+    <td valign="top"  style="width: 50%; text-align: right;">
       <!-- LOGO -->
       <a href="https://acai.gmbh">
-        <img src="https://github.com/acai-consulting/acai.public/raw/main/logo/logo_github_readme.png" alt="acai logo" align="right" title="ACAI" width="40%"/>
+        <img src="https://github.com/acai-consulting/acai.public/raw/main/logo/logo_github_readme.png" alt="acai logo" title="ACAI" width="40%"/>
       </a>
     </td>
     </tr>
@@ -23,7 +23,6 @@
 <!-- DESCRIPTION -->
 [Terraform][terraform-url] module to deploy Lambda resources on [AWS][aws-url]
 
-
 <!-- ARCHITECTURE -->
 ## Architecture
 
@@ -31,6 +30,7 @@
 
 <!-- FEATURES -->
 ## Features
+
 * Creates a Lambda Function
 * Creates a CloudWatch Log Group for Lambda logs
 * Execution IAM Role
@@ -45,10 +45,12 @@
 ## Examples
 
 ### Use-Case 1
+
 This Lambda will list all CloudWatch LogGroups and IAM Roles and return them as JSON.
 This use-case will create a Lambda, with a new Execution IAM Role and provides a lambda_permission policy-snip to perform the tasks.
 
 Location: [`./examples/use-case-1`](./examples/use-case-1/)
+
 ``` hcl
 data "aws_caller_identity" "current" {}
 
@@ -97,11 +99,13 @@ module "use_case_1_lambda" {
 ```
 
 ### Use-Case 2
+
 This Lambda will list all Event-Rules and return them as JSON
 This use-case will create a Lambda, with a new Execution IAM Role and provides a lambda_permission policy-snip to perform the tasks.
 The Lambda will be scheduled and will be triggered by an Event Rule, listening for terminated EC2 instances.
 
 Location: [`./examples/use-case-2`](./examples/use-case-2/)
+
 ``` hcl
 data "aws_caller_identity" "current" {}
 
@@ -169,9 +173,11 @@ module "test_lambda" {
 ```
 
 ### Use-Case 3
+
 In this use-case two Lambdas will share an IAM Role that is "externally" provided.
 
 Location: [`./examples/use-case-3`](./examples/use-case-3/)
+
 ``` hcl
 # ---------------------------------------------------------------------------------------------------------------------
 # ¦ DATA
@@ -299,11 +305,13 @@ module "use_case_3_lambda2" {
 ```
 
 ### Use-Case 4
+
 In this use-case an 'existing' KMS CMK will be provided and a SQS will be enabled.
 The Lambda module will provision the SQS and wire it up with the Lambda.
 The KMS CMK will be used for the SQS queue and the CloudWatch LogGroup.
 
 Location: [`./examples/use-case-4`](./examples/use-case-4/)
+
 ``` hcl
 # ---------------------------------------------------------------------------------------------------------------------
 # ¦ DATA
@@ -508,9 +516,6 @@ See [LICENSE][license-url] for full details.
 
 <!-- MARKDOWN LINKS & IMAGES -->
 [acai-url]: https://acai.gmbh
-[terraform-version-url]: https://www.terraform.io/upgrade-guides/1-3-10.html
-[release-shield]: https://img.shields.io/github/v/release/acai-consulting/terraform-aws-acf-ou-mgmt?style=flat&color=success
-[architecture-png]: ./docs/terraform-aws-acf-core-configuration.png
 [license-url]: ./LICENSE
 [terraform-url]: https://www.terraform.io
 [aws-url]: https://aws.amazon.comterraform-aws-acf-ou-mgmt/tree/main/examples/complete
