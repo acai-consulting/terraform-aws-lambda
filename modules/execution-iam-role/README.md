@@ -44,5 +44,9 @@ No modules.
 
 | Name | Description |
 |------|-------------|
-| <a name="output_lambda_execution_iam_role"></a> [lambda\_execution\_iam\_role](#output\_lambda\_execution\_iam\_role) | Information about the Lambda execution role. |
+| <a name="output_lambda_execution_iam_policy_document"></a> [lambda\_execution\_iam\_policy\_document](#output\_lambda\_execution\_iam\_policy\_document) | The IAM policy document associated with the Lambda execution role. |
+| <a name="output_lambda_execution_iam_role_arn"></a> [lambda\_execution\_iam\_role\_arn](#output\_lambda\_execution\_iam\_role\_arn) | The ARN of the Lambda execution IAM role. |
+| <a name="output_lambda_execution_iam_role_id"></a> [lambda\_execution\_iam\_role\_id](#output\_lambda\_execution\_iam\_role\_id) | The ID of the Lambda execution IAM role. |
+| <a name="output_lambda_execution_iam_role_name"></a> [lambda\_execution\_iam\_role\_name](#output\_lambda\_execution\_iam\_role\_name) | The name of the Lambda execution IAM role. |
+| <a name="output_lambda_execution_iam_role_unique_id"></a> [lambda\_execution\_iam\_role\_unique\_id](#output\_lambda\_execution\_iam\_role\_unique\_id) | The unique ID of the Lambda execution IAM role. |
 <!-- END_TF_DOCS -->

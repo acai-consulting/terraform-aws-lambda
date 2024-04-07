@@ -487,8 +487,8 @@ module "use_case_4_lambda" {
 
 | Name | Description |
 |------|-------------|
+| <a name="output_execution_iam_role"></a> [execution\_iam\_role](#output\_execution\_iam\_role) | Information about the Lambda execution role. |
 | <a name="output_lambda"></a> [lambda](#output\_lambda) | Information about the Lambda. |
-| <a name="output_lambda_execution_iam_role"></a> [lambda\_execution\_iam\_role](#output\_lambda\_execution\_iam\_role) | Information about the Lambda execution role. |
 <!-- END_TF_DOCS -->
 
 <!-- AUTHORS -->
