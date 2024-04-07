@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.1](https://github.com/acai-consulting/terraform-aws-lambda/compare/1.1.0...1.1.1) (2024-04-07)
+
+
+### Bug Fixes
+
+* permission policy json list ([#7](https://github.com/acai-consulting/terraform-aws-lambda/issues/7)) ([14fa226](https://github.com/acai-consulting/terraform-aws-lambda/commit/14fa226813997bb32173645d3f250a1f45b7dbd1))
+
 ## [1.1.0](https://github.com/acai-consulting/terraform-aws-lambda/compare/1.0.1...1.1.0) (2024-04-07)
 
 
