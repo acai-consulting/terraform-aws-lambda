@@ -47,6 +47,5 @@ No modules.
 | <a name="output_arn"></a> [arn](#output\_arn) | The ARN of the Lambda execution IAM role. |
 | <a name="output_id"></a> [id](#output\_id) | The ID of the Lambda execution IAM role. |
 | <a name="output_name"></a> [name](#output\_name) | The name of the Lambda execution IAM role. |
-| <a name="output_policy_document"></a> [policy\_document](#output\_policy\_document) | The IAM policy document associated with the Lambda execution role. |
 | <a name="output_unique_id"></a> [unique\_id](#output\_unique\_id) | The unique ID of the Lambda execution IAM role. |
 <!-- END_TF_DOCS -->
