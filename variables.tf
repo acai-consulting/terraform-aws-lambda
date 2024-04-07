@@ -2,9 +2,9 @@ variable "lambda_settings" {
   description = "Settings for the Lambda function."
   type = object({
     function_name = string
-    description   = string
+    description   = optional(string, "not provided")
     layer_names   = optional(list(string), null)
-    handler       = string
+    handler       = optional(string, null)
     config = object({
       runtime                = string
       architecture           = optional(string, "x86_64")
