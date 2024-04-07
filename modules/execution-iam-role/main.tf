@@ -118,5 +118,5 @@ resource "aws_iam_role_policy" "new_lambda_permission_policies" {
 data "aws_iam_policy_document" "new_lambda_permission_policies" {
   count = local.create_new_execution_iam_role ? 1 : 0
 
-  source_policy_documents = try(local.new_execution_iam_role.permission_policy_json_list, [{}])
+  source_policy_documents = null//try(local.new_execution_iam_role.permission_policy_json_list, [{}])
 }
