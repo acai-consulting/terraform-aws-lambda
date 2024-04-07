@@ -44,5 +44,8 @@ No modules.
 
 | Name | Description |
 |------|-------------|
-| <a name="output_lambda_execution_iam_role"></a> [lambda\_execution\_iam\_role](#output\_lambda\_execution\_iam\_role) | Information about the Lambda execution role. |
+| <a name="output_arn"></a> [arn](#output\_arn) | The ARN of the Lambda execution IAM role. |
+| <a name="output_id"></a> [id](#output\_id) | The ID of the Lambda execution IAM role. |
+| <a name="output_name"></a> [name](#output\_name) | The name of the Lambda execution IAM role. |
+| <a name="output_unique_id"></a> [unique\_id](#output\_unique\_id) | The unique ID of the Lambda execution IAM role. |
 <!-- END_TF_DOCS -->

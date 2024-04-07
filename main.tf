@@ -54,7 +54,7 @@ resource "aws_lambda_function" "this" {
   function_name = var.lambda_settings.function_name
   description   = var.lambda_settings.description
   layers        = var.lambda_settings.layer_names
-  role          = module.lambda_execution_iam_role.lambda_execution_iam_role.arn
+  role          = module.lambda_execution_iam_role.arn
   handler       = var.lambda_settings.handler
 
   runtime       = var.lambda_settings.config.runtime
@@ -160,14 +160,14 @@ module "lambda_execution_iam_role" {
 
 resource "aws_iam_role_policy_attachment" "aws_xray_write_only_access" {
   count      = var.lambda_settings.tracing_mode == null ? 0 : 1
-  role       = module.lambda_execution_iam_role.lambda_execution_iam_role.name
+  role       = module.lambda_execution_iam_role.name
   policy_arn = "arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess"
 }
 
 resource "aws_iam_role_policy" "triggering_sqs_permissions" {
   count  = var.trigger_settings.sqs != null ? 1 : 0
   name   = "TriggeringSqsPermissions"
-  role   = module.lambda_execution_iam_role.lambda_execution_iam_role.name
+  role   = module.lambda_execution_iam_role.name
   policy = data.aws_iam_policy_document.triggering_sqs_permissions.json
 }
 
