@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0](https://github.com/acai-consulting/terraform-aws-lambda/compare/1.0.1...1.1.0) (2024-04-07)
+
+
+### Features
+
+* Adjust iam output ([#6](https://github.com/acai-consulting/terraform-aws-lambda/issues/6)) ([a453d95](https://github.com/acai-consulting/terraform-aws-lambda/commit/a453d95079b4742aa5035bb695f86de0b3581f42))
+
 ## [1.0.1](https://github.com/acai-consulting/terraform-aws-lambda/compare/1.0.0...1.0.1) (2024-04-06)
 
 
