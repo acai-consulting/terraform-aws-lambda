@@ -108,7 +108,9 @@ data "aws_iam_policy_document" "lambda_context" {
 
 
 resource "aws_iam_role_policy" "new_lambda_permission_policies" {
-  count = local.create_new_execution_iam_role ? 1 : 0
+  count = local.create_new_execution_iam_role ? (
+    length(local.new_execution_iam_role.permission_policy_json_list) > 0 ? 1 : 0
+  ): 0
 
   name   = "AllowCustomPermissions${local.policy_name_suffix}"
   role   = aws_iam_role.execution_role[0].name
@@ -116,7 +118,9 @@ resource "aws_iam_role_policy" "new_lambda_permission_policies" {
 }
 
 data "aws_iam_policy_document" "new_lambda_permission_policies" {
-  count = local.create_new_execution_iam_role ? 1 : 0
+  count = local.create_new_execution_iam_role ? (
+    length(local.new_execution_iam_role.permission_policy_json_list) > 0 ? 1 : 0
+  ): 0
 
-  source_policy_documents = []//try(local.new_execution_iam_role.permission_policy_json_list, [{}])
+  source_policy_documents = local.new_execution_iam_role.permission_policy_json_list
 }
