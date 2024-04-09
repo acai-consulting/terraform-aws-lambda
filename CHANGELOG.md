@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.2](https://github.com/acai-consulting/terraform-aws-lambda/compare/1.1.1...1.1.2) (2024-04-09)
+
+
+### Bug Fixes
+
+* add trigger as output ([#8](https://github.com/acai-consulting/terraform-aws-lambda/issues/8)) ([126d3a8](https://github.com/acai-consulting/terraform-aws-lambda/commit/126d3a8aee9c352c52d9739b6ce4e0c9f4c10d51))
+
 ## [1.1.1](https://github.com/acai-consulting/terraform-aws-lambda/compare/1.1.0...1.1.1) (2024-04-07)
 
 
