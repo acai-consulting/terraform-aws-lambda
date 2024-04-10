@@ -32,7 +32,7 @@ locals {
     {
       "tf_module_origin"  = "terraform registry",
       "tf_module_source"  = "acai-consulting/lambda/aws",
-      "tf_module_version" = /*inject_version_start*/"1.1.4"/*inject_version_end*/
+      "tf_module_version" = /*inject_version_start*/ "1.1.4" /*inject_version_end*/
     }
   )
   region_name_length = length(data.aws_region.current.name)
