@@ -27,6 +27,14 @@ data "aws_region" "current" {}
 # ¦ LOCALS
 # ---------------------------------------------------------------------------------------------------------------------
 locals {
+  resource_tags = merge(
+    var.resource_tags,
+    {
+      "tf_module_origin"  = "terraform registry",
+      "tf_module_source"  = "acai-consulting/lambda/aws",
+      "tf_module_version" = /*inject_version_start*/"1.1.4"/*inject_version_end*/
+    }
+  )
   region_name_length = length(data.aws_region.current.name)
   region_name_short = format("%s%s%s",
     substr(data.aws_region.current.name, 0, 2),
@@ -118,7 +126,7 @@ resource "aws_lambda_function" "this" {
     }
   }
 
-  tags = var.resource_tags
+  tags = local.resource_tags
 
   depends_on = [
     aws_cloudwatch_log_group.lambda_logs,
@@ -133,7 +141,7 @@ resource "aws_cloudwatch_log_group" "lambda_logs" {
   name              = local.loggroup_name
   retention_in_days = var.lambda_settings.config.log_retention_in_days
   kms_key_id        = var.existing_kms_cmk_arn
-  tags              = var.resource_tags
+  tags              = local.resource_tags
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -150,6 +158,7 @@ module "lambda_trigger" {
     lambda_arn     = aws_lambda_function.this.arn
     lambda_timeout = aws_lambda_function.this.timeout
   }
+  resource_tags = local.resource_tags
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -165,6 +174,7 @@ module "lambda_execution_iam_role" {
     lambda_name   = var.lambda_settings.function_name
     loggroup_name = local.loggroup_name
   }
+  resource_tags = local.resource_tags
 }
 
 resource "aws_iam_role_policy_attachment" "aws_xray_write_only_access" {
