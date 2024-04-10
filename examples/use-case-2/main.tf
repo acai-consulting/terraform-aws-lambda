@@ -34,6 +34,7 @@ locals {
 }
 
 data "aws_iam_policy_document" "lambda_permission" {
+  #checkov:skip=CKV_AWS_356 : Example only
   statement {
     effect = "Allow"
     actions = [
