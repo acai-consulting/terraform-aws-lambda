@@ -93,6 +93,13 @@ resource "aws_lambda_function" "this" {
     }
   }
 
+  dynamic "dead_letter_config" {
+    for_each = var.lambda_settings.dead_letter_config != null ? [1] : []
+    content {
+      target_arn = var.lambda_settings.dead_letter_config.target_arn
+    }
+  }
+
   dynamic "image_config" {
     for_each = var.lambda_settings.image_config != null ? [1] : []
     content {
