@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.5](https://github.com/acai-consulting/terraform-aws-lambda/compare/1.1.4...1.1.5) (2024-04-10)
+
+
+### Bug Fixes
+
+* add compliance to checkov ([#11](https://github.com/acai-consulting/terraform-aws-lambda/issues/11)) ([4c3d108](https://github.com/acai-consulting/terraform-aws-lambda/commit/4c3d10865afdd0f6b478464f40236dcd1a7d6e10))
+
 ## [1.1.4](https://github.com/acai-consulting/terraform-aws-lambda/compare/1.1.3...1.1.4) (2024-04-10)
 
 
