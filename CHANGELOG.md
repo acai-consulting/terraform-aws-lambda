@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.3](https://github.com/acai-consulting/terraform-aws-lambda/compare/1.1.2...1.1.3) (2024-04-10)
+
+
+### Bug Fixes
+
+* Introduce DeadLetterQueue ([#9](https://github.com/acai-consulting/terraform-aws-lambda/issues/9)) ([0b931c7](https://github.com/acai-consulting/terraform-aws-lambda/commit/0b931c73f82aacf8c559bfac49bcd7a1cab72253))
+
 ## [1.1.2](https://github.com/acai-consulting/terraform-aws-lambda/compare/1.1.1...1.1.2) (2024-04-09)
 
 
