@@ -10,7 +10,7 @@ on:
 
 jobs:
   tf_module_base_job:
-    uses: acai-consulting/github-terraform-workflows/.github/workflows/tf-module-base.yml@main
+    uses: acai-consulting/github-terraform-workflows/.github/workflows/tf-module-base.yml@add_checkov
     if: ${{ github.event_name == 'pull_request' }}
     with:
       tflint_config_repo: "acai-consulting/github-workflow-configs"
