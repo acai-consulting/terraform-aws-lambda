@@ -1,10 +1,11 @@
 # terraform-aws-lambda
 
 <!-- SHIELDS -->
-[![Maintained by acai.gmbh][acai-shield]][acai-url] 
-[![Terraform Version][terraform-version-shield]][terraform-version-url]
-![trivy][trivy-shield]
-![checkov][checkov-shield]
+[![Maintained by acai.gmbh][acai-shield]][acai-url]
+![module-version-shield]
+![terraform-version-shield]
+![trivy-shield]
+![checkov-shield]
 [![Latest Release][release-shield]][release-url]
 
 <!-- LOGO -->
@@ -512,12 +513,12 @@ See [LICENSE][license-url] for full details.
 <!-- MARKDOWN LINKS & IMAGES -->
 [acai-url]: https://acai.gmbh
 [acai-shield]: https://img.shields.io/badge/maintained_by-acai.gmbh-CB224B?style=flat
+[module-version-shield]: https://img.shields.io/badge/module_version-1.1.4-CB224B?style=flat
 [terraform-version-shield]: https://img.shields.io/badge/tf-%3E%3D1.3.10-blue.svg?style=flat&color=blueviolet
 [trivy-shield]: https://img.shields.io/badge/trivy-passed-green
 [checkov-shield]: https://img.shields.io/badge/checkov-passed-green
 [release-shield]: https://img.shields.io/github/v/release/acai-consulting/terraform-aws-lambda?style=flat&color=success
 [release-url]: https://registry.terraform.io/modules/acai-consulting/lambda/aws/latest
-[terraform-version-url]: https://www.terraform.io/upgrade-guides/1-3-10.html
 [license-url]: ./LICENSE
 [terraform-url]: https://www.terraform.io
 [aws-url]: https://aws.amazon.comterraform-aws-acf-ou-mgmt/tree/main/examples/complete
