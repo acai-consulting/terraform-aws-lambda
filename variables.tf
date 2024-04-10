@@ -32,6 +32,9 @@ variable "lambda_settings" {
       entry_point       = optional(list(string), null)
       working_directory = optional(string, null)
     }), null)
+    dead_letter_config = optional(object({
+      target_arn = string
+    }), null)
     vpc_config = optional(object({
       security_group_ids = list(string)
       subnet_ids         = list(string)
@@ -83,6 +86,16 @@ variable "lambda_settings" {
   validation {
     condition     = var.lambda_settings.package.type != "Image" || (var.lambda_settings.image_config != null && var.lambda_settings.image_config != null ? var.lambda_settings.image_config.image_uri != "" : true)
     error_message = "When package type is 'Image', image_uri must be specified."
+  }
+
+  validation {
+    condition     = var.lambda_settings.dead_letter_config == null ? true : can(regex("arn:aws:(sns|sqs):[a-z\\-0-9]+:\\d{12}:(.*)", var.lambda_settings.dead_letter_config.target_arn))
+    error_message = "The dead_letter_config.target_arn must be a valid ARN of an SNS topic or SQS queue."
+  }
+
+  validation {
+    condition     = can(length(var.lambda_settings.vpc_config.security_group_ids)) && can(length(var.lambda_settings.vpc_config.subnet_ids)) ? (length(var.lambda_settings.vpc_config.security_group_ids) > 0 && length(var.lambda_settings.vpc_config.subnet_ids) > 0) : true
+    error_message = "Both security_group_ids and subnet_ids must be provided for VPC configuration."
   }
 
   validation {
