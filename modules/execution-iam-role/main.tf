@@ -104,6 +104,15 @@ data "aws_iam_policy_document" "lambda_context" {
       resources = [var.existing_kms_cmk_arn]
     }
   }
+  dynamic "statement" {
+    for_each = var.dead_letter_target_arn != null ? [1] : []
+    content {
+      sid       = "AllowDeadLetterQueueAccess"
+      effect    = "Allow"
+      actions   = ["sns:Publish", "sqs:SendMessage"]
+      resources = [var.dead_letter_target_arn]
+    }
+  }
 }
 
 

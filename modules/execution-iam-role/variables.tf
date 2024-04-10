@@ -26,6 +26,12 @@ variable "existing_kms_cmk_arn" {
   default     = null
 }
 
+variable "dead_letter_target_arn" {
+  description = "ARN to optional Dead Letter Target."
+  type        = string
+  default     = null
+}
+
 variable "resource_tags" {
   description = "A map of tags to assign to the resources."
   type        = map(string)

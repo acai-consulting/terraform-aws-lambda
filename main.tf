@@ -78,7 +78,7 @@ resource "aws_lambda_function" "this" {
   reserved_concurrent_executions = var.lambda_settings.reserved_concurrent_executions
   publish                        = var.lambda_settings.publish
   kms_key_arn                    = var.existing_kms_cmk_arn
-  
+
   dynamic "tracing_config" {
     for_each = var.lambda_settings.tracing_mode != null ? [1] : []
     content {
@@ -160,6 +160,7 @@ module "lambda_execution_iam_role" {
 
   execution_iam_role_settings = var.execution_iam_role_settings
   existing_kms_cmk_arn        = var.existing_kms_cmk_arn
+  dead_letter_target_arn      = var.lambda_settings.dead_letter_config == null ? null : var.lambda_settings.dead_letter_config.target_arn
   runtime_configuration = {
     lambda_name   = var.lambda_settings.function_name
     loggroup_name = local.loggroup_name
