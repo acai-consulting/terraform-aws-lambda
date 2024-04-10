@@ -62,6 +62,9 @@ resource "aws_sqs_queue_policy" "lambda_trigger" {
 }
 
 #tfsec:ignore:avd-aws-0097
+#checkov:skip=CKV_AWS_109 : Resource base policy
+#checkov:skip=CKV_AWS_111 : Resource base policy
+#checkov:skip=CKV_AWS_356 : Allow "sqs:*" for account principals
 data "aws_iam_policy_document" "lambda_trigger_policy" {
   count = var.trigger_settings.sqs != null ? 1 : 0
 
