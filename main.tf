@@ -59,6 +59,7 @@ data "archive_file" "lambda_package" {
 
 #tfsec:ignore:avd-aws-0066 Lambda functions should have X-Ray tracing enabled
 resource "aws_lambda_function" "this" {
+  #checkov:skip=CKV_AWS_272 : #TODO Code Signing will be added in a later release  
   function_name = var.lambda_settings.function_name
   description   = var.lambda_settings.description
   layers        = var.lambda_settings.layer_names

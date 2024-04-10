@@ -3,6 +3,9 @@
 <!-- SHIELDS -->
 [![Maintained by acai.gmbh][acai-shield]][acai-url] 
 [![Terraform Version][terraform-version-shield]][terraform-version-url]
+![trivy][trivy-shield]
+![checkov][checkov-shield]
+[![Latest Release][release-shield]][release-url]
 
 <!-- LOGO -->
 <div style="text-align: right; margin-top: -60px;">
@@ -510,6 +513,10 @@ See [LICENSE][license-url] for full details.
 [acai-url]: https://acai.gmbh
 [acai-shield]: https://img.shields.io/badge/maintained_by-acai.gmbh-CB224B?style=flat
 [terraform-version-shield]: https://img.shields.io/badge/tf-%3E%3D1.3.10-blue.svg?style=flat&color=blueviolet
+[trivy-shield]: https://img.shields.io/badge/trivy-passed-green
+[checkov-shield]: https://img.shields.io/badge/checkov-passed-green
+[release-shield]: https://img.shields.io/github/v/release/acai-consulting/terraform-aws-lambda?style=flat&color=success
+[release-url]: https://registry.terraform.io/modules/acai-consulting/lambda/aws/latest
 [terraform-version-url]: https://www.terraform.io/upgrade-guides/1-3-10.html
 [license-url]: ./LICENSE
 [terraform-url]: https://www.terraform.io

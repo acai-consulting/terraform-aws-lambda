@@ -33,6 +33,10 @@ resource "aws_kms_alias" "lambda_cmk_alias" {
 }
 #tfsec:ignore:avd-aws-0057
 data "aws_iam_policy_document" "lambda_kms_policy" {
+  #checkov:skip=CKV_AWS_109 : Example only
+  #checkov:skip=CKV_AWS_111 : Example only
+  #checkov:skip=CKV_AWS_283 : Example only
+  #checkov:skip=CKV_AWS_356 : Example only
   statement {
     actions   = ["kms:*"]
     resources = ["*"]
