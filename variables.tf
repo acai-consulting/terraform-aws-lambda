@@ -89,7 +89,7 @@ variable "lambda_settings" {
   }
 
   validation {
-    condition     = var.lambda_settings.dead_letter_config == null  ? true :  can(regex("arn:aws:(sns|sqs):[a-z\\-0-9]+:\\d{12}:(.*)", var.lambda_settings.dead_letter_config.target_arn))
+    condition     = var.lambda_settings.dead_letter_config == null ? true : can(regex("arn:aws:(sns|sqs):[a-z\\-0-9]+:\\d{12}:(.*)", var.lambda_settings.dead_letter_config.target_arn))
     error_message = "The dead_letter_config.target_arn must be a valid ARN of an SNS topic or SQS queue."
   }
 
