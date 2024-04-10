@@ -77,7 +77,8 @@ resource "aws_lambda_function" "this" {
 
   reserved_concurrent_executions = var.lambda_settings.reserved_concurrent_executions
   publish                        = var.lambda_settings.publish
-
+  kms_key_arn                    = var.existing_kms_cmk_arn
+  
   dynamic "tracing_config" {
     for_each = var.lambda_settings.tracing_mode != null ? [1] : []
     content {
