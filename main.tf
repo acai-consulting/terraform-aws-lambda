@@ -152,7 +152,7 @@ resource "aws_lambda_permission" "allow_lambda_logs" {
   action         = "lambda:InvokeFunction"
   function_name  = var.lambda_settings.error_handling.central_collector.target_arn
   principal      = "logs.${data.aws_region.this.name}.amazonaws.com"
-  source_arn     = "${aws_cloudwatch_log_group.lambda_logs.name}:*"
+  source_arn     = "${aws_cloudwatch_log_group.lambda_logs.arn}:*"
   source_account = data.aws_caller_identity.this.account_id
 }
 
