@@ -21,7 +21,7 @@ terraform {
 # ¦ DATA
 # ---------------------------------------------------------------------------------------------------------------------
 data "aws_caller_identity" "this" {}
-data "aws_region" "current" {}
+data "aws_region" "this" {}
 
 # ---------------------------------------------------------------------------------------------------------------------
 # ¦ LOCALS
@@ -36,11 +36,11 @@ locals {
       "module_lambda_version"  = /*inject_version_start*/ "1.1.6" /*inject_version_end*/
     }
   )
-  region_name_length = length(data.aws_region.current.name)
+  region_name_length = length(data.aws_region.this.name)
   region_name_short = format("%s%s%s",
-    substr(data.aws_region.current.name, 0, 2),
-    substr(data.aws_region.current.name, 3, 1),
-    substr(data.aws_region.current.name, local.region_name_length - 1, 1)
+    substr(data.aws_region.this.name, 0, 2),
+    substr(data.aws_region.this.name, 3, 1),
+    substr(data.aws_region.this.name, local.region_name_length - 1, 1)
   )
   loggroup_name = "/aws/lambda/${var.lambda_settings.function_name}"
 }
