@@ -3,6 +3,7 @@ variable "trigger_settings" {
     trigger_permissions = optional(list(object({
       principal  = string
       source_arn = string
+      source_account = string
     })), null)
     sqs = optional(object({
       access_policy_json_list = optional(list(string), [])

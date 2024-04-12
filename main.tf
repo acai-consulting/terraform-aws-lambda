@@ -146,7 +146,7 @@ resource "aws_cloudwatch_log_group" "lambda_logs" {
   tags              = local.resource_tags
 }
 
-resource "aws_cloudwatch_log_subscription_filter" "test_lambdafunction_logfilter" {
+resource "aws_cloudwatch_log_subscription_filter" "lambda_logs_forwarding" {
   count  = var.lambda_settings.error_handling == null ? 0 : (var.lambda_settings.error_handling.central_collector == null ? 0 : 1)
   name            = "error_forwarding"
   log_group_name  = aws_cloudwatch_log_group.lambda_logs.name
