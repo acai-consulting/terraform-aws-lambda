@@ -19,7 +19,7 @@ variable "lambda_settings" {
       }), null)
       central_collector = optional(object({
         target_arn = string
-        filter = optional(string)
+        filter = optional(string, "ERROR")
       }), null)
     }), null)
     package = object({
