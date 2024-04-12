@@ -20,8 +20,8 @@ terraform {
 # ---------------------------------------------------------------------------------------------------------------------
 # ¦ DATA
 # ---------------------------------------------------------------------------------------------------------------------
+data "aws_caller_identity" "this" {}
 data "aws_region" "current" {}
-
 
 # ---------------------------------------------------------------------------------------------------------------------
 # ¦ LOCALS
@@ -146,14 +146,25 @@ resource "aws_cloudwatch_log_group" "lambda_logs" {
   tags              = local.resource_tags
 }
 
+resource "aws_lambda_permission" "allow_lambda_logs" {
+  count = var.lambda_settings.error_handling == null ? 0 : (var.lambda_settings.error_handling.central_collector == null ? 0 : 1)
+
+  action         = "lambda:InvokeFunction"
+  function_name  = var.lambda_settings.error_handling.central_collector.target_arn
+  principal      = "logs.${data.aws_region.this.name}.amazonaws.com"
+  source_arn     = "${aws_cloudwatch_log_group.lambda_logs.name}:*"
+  source_account = data.aws_caller_identity.this.account_id
+}
+
 resource "aws_cloudwatch_log_subscription_filter" "lambda_logs_forwarding" {
-  count  = var.lambda_settings.error_handling == null ? 0 : (var.lambda_settings.error_handling.central_collector == null ? 0 : 1)
-  name            = "error_forwarding"
+  count           = var.lambda_settings.error_handling == null ? 0 : (var.lambda_settings.error_handling.central_collector == null ? 0 : 1)
+  depends_on      = [aws_lambda_permission.allow_lambda_logs[0]]
+
+  name            = "forwarding_${var.lambda_settings.function_name}"
   log_group_name  = aws_cloudwatch_log_group.lambda_logs.name
   destination_arn = var.lambda_settings.error_handling.central_collector.target_arn
   filter_pattern  = var.lambda_settings.error_handling.central_collector.filter
 }
-
 
 # ---------------------------------------------------------------------------------------------------------------------
 # ¦ TRIGGER
