@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.0](https://github.com/acai-consulting/terraform-aws-lambda/compare/1.1.6...1.2.0) (2024-04-13)
+
+
+### Features
+
+* refactor error-handling  ([#13](https://github.com/acai-consulting/terraform-aws-lambda/issues/13)) ([02724fc](https://github.com/acai-consulting/terraform-aws-lambda/commit/02724fc03bb86eeeeece04a855bf2a45aaff1300))
+
 ## [1.1.6](https://github.com/acai-consulting/terraform-aws-lambda/compare/1.1.5...1.1.6) (2024-04-10)
 
 
