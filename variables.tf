@@ -4,7 +4,7 @@ variable "lambda_settings" {
     function_name = string
     description   = optional(string, "not provided")
     layer_names   = optional(list(string), null)
-    handler       = optional(string, null)
+    handler       = optional(string, "main.lambda_handler")
     config = object({
       runtime                = string
       architecture           = optional(string, "x86_64")
@@ -13,6 +13,15 @@ variable "lambda_settings" {
       ephemeral_storage_size = optional(number, 512)
       log_retention_in_days  = optional(number, 90)
     })
+    error_handling = optional(object({
+      dead_letter_config = optional(object({
+        target_arn = string
+      }), null)
+      central_collector = optional(object({
+        target_arn = string
+        filter     = optional(string, "ERROR")
+      }), null)
+    }), null)
     package = object({
       type        = optional(string, "Zip")
       local_path  = optional(string, null)
@@ -31,9 +40,6 @@ variable "lambda_settings" {
       command           = optional(list(string), null)
       entry_point       = optional(list(string), null)
       working_directory = optional(string, null)
-    }), null)
-    dead_letter_config = optional(object({
-      target_arn = string
     }), null)
     vpc_config = optional(object({
       security_group_ids = list(string)
@@ -89,7 +95,7 @@ variable "lambda_settings" {
   }
 
   validation {
-    condition     = var.lambda_settings.dead_letter_config == null ? true : can(regex("arn:aws:(sns|sqs):[a-z\\-0-9]+:\\d{12}:(.*)", var.lambda_settings.dead_letter_config.target_arn))
+    condition     = var.lambda_settings.error_handling == null ? true : (var.lambda_settings.error_handling.dead_letter_config == null ? true : can(regex("arn:aws:(sns|sqs):[a-z\\-0-9]+:\\d{12}:(.*)", var.lambda_settings.error_handling.dead_letter_config.target_arn)))
     error_message = "The dead_letter_config.target_arn must be a valid ARN of an SNS topic or SQS queue."
   }
 
@@ -108,8 +114,9 @@ variable "trigger_settings" {
   description = "Settings for the Lambda function's trigger settings, including permissions, SQS triggers, schedule expressions, and event rules."
   type = object({
     trigger_permissions = optional(list(object({
-      principal  = string
-      source_arn = string
+      principal      = string
+      source_arn     = string
+      source_account = optional(string)
     })), [])
     sqs = optional(object({
       access_policy_json_list = optional(list(string), [])

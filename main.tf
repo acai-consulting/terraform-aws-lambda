@@ -20,8 +20,8 @@ terraform {
 # ---------------------------------------------------------------------------------------------------------------------
 # ¦ DATA
 # ---------------------------------------------------------------------------------------------------------------------
-data "aws_region" "current" {}
-
+data "aws_caller_identity" "this" {}
+data "aws_region" "this" {}
 
 # ---------------------------------------------------------------------------------------------------------------------
 # ¦ LOCALS
@@ -36,11 +36,11 @@ locals {
       "module_lambda_version"  = /*inject_version_start*/ "1.1.6" /*inject_version_end*/
     }
   )
-  region_name_length = length(data.aws_region.current.name)
+  region_name_length = length(data.aws_region.this.name)
   region_name_short = format("%s%s%s",
-    substr(data.aws_region.current.name, 0, 2),
-    substr(data.aws_region.current.name, 3, 1),
-    substr(data.aws_region.current.name, local.region_name_length - 1, 1)
+    substr(data.aws_region.this.name, 0, 2),
+    substr(data.aws_region.this.name, 3, 1),
+    substr(data.aws_region.this.name, local.region_name_length - 1, 1)
   )
   loggroup_name = "/aws/lambda/${var.lambda_settings.function_name}"
 }
@@ -105,9 +105,9 @@ resource "aws_lambda_function" "this" {
   }
 
   dynamic "dead_letter_config" {
-    for_each = var.lambda_settings.dead_letter_config != null ? [1] : []
+    for_each = var.lambda_settings.error_handling != null ? (var.lambda_settings.error_handling.dead_letter_config != null ? [1] : []) : []
     content {
-      target_arn = var.lambda_settings.dead_letter_config.target_arn
+      target_arn = var.lambda_settings.error_handling.dead_letter_config.target_arn
     }
   }
 
@@ -146,6 +146,26 @@ resource "aws_cloudwatch_log_group" "lambda_logs" {
   tags              = local.resource_tags
 }
 
+resource "aws_lambda_permission" "allow_lambda_logs" {
+  count = var.lambda_settings.error_handling == null ? 0 : (var.lambda_settings.error_handling.central_collector == null ? 0 : 1)
+
+  action         = "lambda:InvokeFunction"
+  function_name  = var.lambda_settings.error_handling.central_collector.target_arn
+  principal      = "logs.${data.aws_region.this.name}.amazonaws.com"
+  source_arn     = "${aws_cloudwatch_log_group.lambda_logs.arn}:*"
+  source_account = data.aws_caller_identity.this.account_id
+}
+
+resource "aws_cloudwatch_log_subscription_filter" "lambda_logs_forwarding" {
+  count      = var.lambda_settings.error_handling == null ? 0 : (var.lambda_settings.error_handling.central_collector == null ? 0 : 1)
+  depends_on = [aws_lambda_permission.allow_lambda_logs[0]]
+
+  name            = "forwarding_${var.lambda_settings.function_name}"
+  log_group_name  = aws_cloudwatch_log_group.lambda_logs.name
+  destination_arn = var.lambda_settings.error_handling.central_collector.target_arn
+  filter_pattern  = var.lambda_settings.error_handling.central_collector.filter
+}
+
 # ---------------------------------------------------------------------------------------------------------------------
 # ¦ TRIGGER
 # ---------------------------------------------------------------------------------------------------------------------
@@ -171,7 +191,7 @@ module "lambda_execution_iam_role" {
 
   execution_iam_role_settings = var.execution_iam_role_settings
   existing_kms_cmk_arn        = var.existing_kms_cmk_arn
-  dead_letter_target_arn      = var.lambda_settings.dead_letter_config == null ? null : var.lambda_settings.dead_letter_config.target_arn
+  dead_letter_target_arn      = var.lambda_settings.error_handling != null ? (var.lambda_settings.error_handling.dead_letter_config != null ? var.lambda_settings.dead_letter_config.target_arn : null) : null
   runtime_configuration = {
     lambda_name   = var.lambda_settings.function_name
     loggroup_name = local.loggroup_name

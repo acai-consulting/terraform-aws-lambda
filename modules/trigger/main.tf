@@ -35,11 +35,12 @@ locals {
 resource "aws_lambda_permission" "allowed_triggers" {
   for_each = var.trigger_settings.trigger_permissions != null ? { for idx, perm in var.trigger_settings.trigger_permissions : idx => perm } : {}
 
-  statement_id  = format("AllowExecution%02d", each.key + 1)
-  action        = "lambda:InvokeFunction"
-  function_name = var.runtime_configuration.lambda_arn
-  principal     = each.value.principal
-  source_arn    = each.value.source_arn != "any" ? each.value.source_arn : null
+  statement_id   = format("AllowExecution%02d", each.key + 1)
+  action         = "lambda:InvokeFunction"
+  function_name  = var.runtime_configuration.lambda_arn
+  principal      = each.value.principal
+  source_arn     = each.value.source_arn != "any" ? each.value.source_arn : null
+  source_account = each.value.source_account
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
