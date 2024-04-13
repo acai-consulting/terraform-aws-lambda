@@ -524,4 +524,4 @@ See [LICENSE][license-url] for full details.
 [release-url]: https://registry.terraform.io/modules/acai-consulting/lambda/aws/latest
 [license-url]: ./LICENSE
 [terraform-url]: https://www.terraform.io
-[aws-url]: https://aws.amazon.comterraform-aws-acf-ou-mgmt/tree/main/examples/complete
+[aws-url]: https://aws.amazon.com
