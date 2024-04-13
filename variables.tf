@@ -19,7 +19,7 @@ variable "lambda_settings" {
       }), null)
       central_collector = optional(object({
         target_arn = string
-        filter = optional(string, "ERROR")
+        filter     = optional(string, "ERROR")
       }), null)
     }), null)
     package = object({
@@ -114,8 +114,8 @@ variable "trigger_settings" {
   description = "Settings for the Lambda function's trigger settings, including permissions, SQS triggers, schedule expressions, and event rules."
   type = object({
     trigger_permissions = optional(list(object({
-      principal  = string
-      source_arn = string
+      principal      = string
+      source_arn     = string
       source_account = optional(string)
     })), [])
     sqs = optional(object({
