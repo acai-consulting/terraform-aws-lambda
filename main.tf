@@ -33,7 +33,7 @@ locals {
       "module_lambda_provider" = "ACAI GmbH",
       "module_lambda_origin"   = "terraform registry",
       "module_lambda_source"   = "acai-consulting/lambda/aws",
-      "module_lambda_version"  = /*inject_version_start*/ "1.2.0" /*inject_version_end*/
+      "module_lambda_version"  = /*inject_version_start*/ "1.2.1" /*inject_version_end*/
     }
   )
   region_name_length = length(data.aws_region.this.name)

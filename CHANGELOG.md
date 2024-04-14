@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.1](https://github.com/acai-consulting/terraform-aws-lambda/compare/1.2.0...1.2.1) (2024-04-14)
+
+
+### Bug Fixes
+
+* Skip ckv aws 338 ([#14](https://github.com/acai-consulting/terraform-aws-lambda/issues/14)) ([763f94b](https://github.com/acai-consulting/terraform-aws-lambda/commit/763f94ba279c614b0bb145f66ddf5e027e4d828f))
+
 ## [1.2.0](https://github.com/acai-consulting/terraform-aws-lambda/compare/1.1.6...1.2.0) (2024-04-13)
 
 
