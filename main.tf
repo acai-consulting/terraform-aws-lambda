@@ -148,10 +148,7 @@ resource "aws_cloudwatch_log_group" "lambda_logs" {
 }
 
 resource "aws_lambda_permission" "allow_lambda_logs" {
-  count = var.lambda_settings.error_handling == null ? 0 : (
-    var.lambda_settings.error_handling.central_collector == null ? 0 : (
-      var.lambda_settings.error_handling.central_collector.target_arn == null ? 0 : 1
-  ))
+  count = try(var.lambda_settings.error_handling.central_collector.target_arn != null, false) ? 1 : 0
 
   action         = "lambda:InvokeFunction"
   function_name  = var.lambda_settings.error_handling.central_collector.target_arn
@@ -161,10 +158,7 @@ resource "aws_lambda_permission" "allow_lambda_logs" {
 }
 
 resource "aws_cloudwatch_log_subscription_filter" "lambda_logs_forwarding" {
-  count = var.lambda_settings.error_handling == null ? 0 : (
-    var.lambda_settings.error_handling.central_collector == null ? 0 : (
-      var.lambda_settings.error_handling.central_collector.target_arn == null ? 0 : 1
-  ))
+  count = try(var.lambda_settings.error_handling.central_collector.target_arn != null, false) ? 1 : 0
   depends_on = [aws_lambda_permission.allow_lambda_logs[0]]
 
   name            = "forwarding_${var.lambda_settings.function_name}"
