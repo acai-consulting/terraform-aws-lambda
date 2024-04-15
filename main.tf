@@ -148,10 +148,10 @@ resource "aws_cloudwatch_log_group" "lambda_logs" {
 }
 
 resource "aws_lambda_permission" "allow_lambda_logs" {
-  count = try(var.lambda_settings.error_handling.central_collector == null, true) ? 0 : (try(var.lambda_settings.error_handling.central_collector.target_arn == null, true) ? 0 : 1)
+  count = try(var.lambda_settings.error_handling.central_collector == null, true) ? 0 : (try(var.lambda_settings.error_handling.central_collector.target_name == null, true) ? 0 : 1)
 
   action         = "lambda:InvokeFunction"
-  function_name  = var.lambda_settings.error_handling.central_collector.target_arn
+  function_name  = var.lambda_settings.error_handling.central_collector.target_name
   principal      = "logs.${data.aws_region.this.name}.amazonaws.com"
   source_arn     = "${aws_cloudwatch_log_group.lambda_logs.arn}:*"
   source_account = data.aws_caller_identity.this.account_id
