@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.3](https://github.com/acai-consulting/terraform-aws-lambda/compare/1.2.2...1.2.3) (2024-04-15)
+
+
+### Bug Fixes
+
+* central_collector ([#16](https://github.com/acai-consulting/terraform-aws-lambda/issues/16)) ([874f97e](https://github.com/acai-consulting/terraform-aws-lambda/commit/874f97e0c2e174d20141f7fe158143f4aa28df08))
+
 ## [1.2.2](https://github.com/acai-consulting/terraform-aws-lambda/compare/1.2.1...1.2.2) (2024-04-15)
 
 
