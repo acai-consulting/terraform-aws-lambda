@@ -18,7 +18,7 @@ variable "lambda_settings" {
         target_arn = string
       }), null)
       central_collector = optional(object({
-        target_arn = optional(string)
+        target_arn = string
         filter     = optional(string, "ERROR")
       }), null)
     }), null)
