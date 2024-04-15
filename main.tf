@@ -148,17 +148,17 @@ resource "aws_cloudwatch_log_group" "lambda_logs" {
 }
 
 resource "aws_lambda_permission" "allow_lambda_logs" {
-  count = var.lambda_settings.error_handling == null ? 0 : (var.lambda_settings.error_handling.central_collector == null ? 0 : (var.lambda_settings.error_handling.central_collector.target_arn == null ? 0 : 1))
+  count = var.lambda_settings.error_handling == null ? 0 : (var.lambda_settings.error_handling.central_collector == null ? 0 : 1)
 
   action         = "lambda:InvokeFunction"
-  function_name  = var.lambda_settings.error_handling.central_collector.target_arn
+  function_name  = var.lambda_settings.error_handling.central_collector.target_name
   principal      = "logs.${data.aws_region.this.name}.amazonaws.com"
   source_arn     = "${aws_cloudwatch_log_group.lambda_logs.arn}:*"
   source_account = data.aws_caller_identity.this.account_id
 }
 
 resource "aws_cloudwatch_log_subscription_filter" "lambda_logs_forwarding" {
-  count      = var.lambda_settings.error_handling == null ? 0 : (var.lambda_settings.error_handling.central_collector == null ? 0 : (var.lambda_settings.error_handling.central_collector.target_arn == null ? 0 : 1))
+  count      = var.lambda_settings.error_handling == null ? 0 : (var.lambda_settings.error_handling.central_collector == null ? 0 : 1)
   depends_on = [aws_lambda_permission.allow_lambda_logs[0]]
 
   name            = "forwarding_${var.lambda_settings.function_name}"
