@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.0](https://github.com/acai-consulting/terraform-aws-lambda/compare/1.2.3...1.3.0) (2024-04-22)
+
+
+### Features
+
+* Add optional injection of additional files into lambda package ([#17](https://github.com/acai-consulting/terraform-aws-lambda/issues/17)) ([051e110](https://github.com/acai-consulting/terraform-aws-lambda/commit/051e1103ccefdd192e3d7c7676f40ba6324a6192))
+
 ## [1.2.3](https://github.com/acai-consulting/terraform-aws-lambda/compare/1.2.2...1.2.3) (2024-04-15)
 
 
