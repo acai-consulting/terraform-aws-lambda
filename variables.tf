@@ -27,6 +27,7 @@ variable "lambda_settings" {
       type        = optional(string, "Zip")
       local_path  = optional(string, null)
       source_path = optional(string, null)
+      files_to_inject = optional(map(string), null)
     })
     environment_variables          = optional(map(string), {})
     reserved_concurrent_executions = optional(number, -1)
@@ -215,6 +216,15 @@ variable "existing_kms_cmk_arn" {
     condition     = var.existing_kms_cmk_arn == null ? true : can(regex("^arn:aws:kms", var.existing_kms_cmk_arn))
     error_message = "Value must contain ARN, starting with \"arn:aws:kms\"."
   }
+}
+
+variable "runtime_context" {
+  description = "Configuration related to the runtime environment of the Lambda function."
+  type = object({
+    account_id    = optional(string, null)
+    region        = optional(string, null)
+  })
+  default = null
 }
 
 variable "resource_tags" {
