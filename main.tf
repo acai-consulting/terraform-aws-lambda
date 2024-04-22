@@ -14,6 +14,10 @@ terraform {
       source  = "hashicorp/archive"
       version = ">= 2.0.0"
     }
+    null = {
+      source  = "hashicorp/null"
+      version = "~> 3.2"
+    }    
   }
 }
 
@@ -57,7 +61,7 @@ resource "null_resource" "stacksets_member_role_package" {
   count = local.package_source_path != null ? (var.lambda_settings.package.files_to_inject != null ? 1 : 0) : 0
 
   triggers = {
-    always_run = "${timestamp()}"
+    always_run = timestamp()
   }
   provisioner "local-exec" {
     command     = <<EOT

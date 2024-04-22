@@ -218,15 +218,6 @@ variable "existing_kms_cmk_arn" {
   }
 }
 
-variable "runtime_context" {
-  description = "Configuration related to the runtime environment of the Lambda function."
-  type = object({
-    account_id = optional(string, null)
-    region     = optional(string, null)
-  })
-  default = null
-}
-
 variable "resource_tags" {
   description = "A map of tags to assign to the resources in this module."
   type        = map(string)
