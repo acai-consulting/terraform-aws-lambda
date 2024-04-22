@@ -61,9 +61,9 @@ resource "null_resource" "stacksets_member_role_package" {
   }
   provisioner "local-exec" {
     command     = <<EOT
-      %{ for path, content in var.lambda_settings.package.files_to_inject ~}
+      %{for path, content in var.lambda_settings.package.files_to_inject~}
       echo '${content}' > ${path}
-      %{ endfor ~}
+      %{endfor~}
       sleep 10
     EOT
     on_failure  = fail
@@ -77,7 +77,7 @@ data "archive_file" "lambda_package" {
   type        = "zip"
   source_dir  = local.package_source_path
   output_path = "${path.module}/${local.region_name_short}_zipped_package.zip"
-  depends_on = [ null_resource.stacksets_member_role_package ]
+  depends_on  = [null_resource.stacksets_member_role_package]
 }
 
 

@@ -24,9 +24,9 @@ variable "lambda_settings" {
       }), null)
     }), null)
     package = object({
-      type        = optional(string, "Zip")
-      local_path  = optional(string, null)
-      source_path = optional(string, null)
+      type            = optional(string, "Zip")
+      local_path      = optional(string, null)
+      source_path     = optional(string, null)
       files_to_inject = optional(map(string), null)
     })
     environment_variables          = optional(map(string), {})
@@ -221,8 +221,8 @@ variable "existing_kms_cmk_arn" {
 variable "runtime_context" {
   description = "Configuration related to the runtime environment of the Lambda function."
   type = object({
-    account_id    = optional(string, null)
-    region        = optional(string, null)
+    account_id = optional(string, null)
+    region     = optional(string, null)
   })
   default = null
 }
