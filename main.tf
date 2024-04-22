@@ -61,9 +61,9 @@ resource "null_resource" "stacksets_member_role_package" {
   }
   provisioner "local-exec" {
     command     = <<EOT
-      %{ for path, content in var.lambda_settings.package.files_to_inject ~}
+      %{for path, content in var.lambda_settings.package.files_to_inject~}
       echo '${content}' > ${path}
-      %{ endfor ~}
+      %{endfor~}
       sleep 10
     EOT
     on_failure  = fail
@@ -77,7 +77,7 @@ data "archive_file" "lambda_package" {
   type        = "zip"
   source_dir  = local.package_source_path
   output_path = "${path.module}/${local.region_name_short}_zipped_package.zip"
-  depends_on = [ null_resource.stacksets_member_role_package ]
+  depends_on  = [null_resource.stacksets_member_role_package]
 }
 
 
@@ -201,7 +201,6 @@ module "lambda_trigger" {
   existing_kms_cmk_arn = var.existing_kms_cmk_arn
   runtime_configuration = {
     account_id     = data.aws_caller_identity.this.account_id
-    region         = data.aws_region.this.name
     lambda_name    = aws_lambda_function.this.function_name
     lambda_arn     = aws_lambda_function.this.arn
     lambda_timeout = aws_lambda_function.this.timeout
@@ -221,7 +220,7 @@ module "lambda_execution_iam_role" {
   dead_letter_target_arn      = var.lambda_settings.error_handling != null ? (var.lambda_settings.error_handling.dead_letter_config != null ? var.lambda_settings.dead_letter_config.target_arn : null) : null
   runtime_configuration = {
     account_id    = data.aws_caller_identity.this.account_id
-    region        = data.aws_region.this.name
+    region_name   = data.aws_region.this.name
     region_short  = local.region_name_short
     lambda_name   = var.lambda_settings.function_name
     loggroup_name = local.loggroup_name

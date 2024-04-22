@@ -8,23 +8,15 @@ terraform {
     aws = {
       source  = "hashicorp/aws"
       version = ">= 5.00"
+      configuration_aliases = []
     }
   }
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
-# ¦ DATA
-# ---------------------------------------------------------------------------------------------------------------------
-data "aws_caller_identity" "current" {}
-data "aws_region" "current" {}
-
-# ---------------------------------------------------------------------------------------------------------------------
 # ¦ LOCALS
 # ---------------------------------------------------------------------------------------------------------------------
 locals {
-  region_name_splitted = split("-", data.aws_region.current.name)
-  region_name_short    = "${local.region_name_splitted[0]}${substr(local.region_name_splitted[1], 0, 1)}${local.region_name_splitted[2]}"
-
   trigger_sqs_name        = "${var.runtime_configuration.lambda_name}-trigger"
   schedule_eventrule_name = "${var.runtime_configuration.lambda_name}-schedule"
 }
@@ -76,7 +68,7 @@ data "aws_iam_policy_document" "lambda_trigger_policy" {
     effect  = "Allow"
     principals {
       type        = "AWS"
-      identifiers = [format("arn:aws:iam::%s:root", data.aws_caller_identity.current.account_id)]
+      identifiers = [format("arn:aws:iam::%s:root", var.runtime_configuration.account_id)]
     }
     resources = ["*"]
   }
