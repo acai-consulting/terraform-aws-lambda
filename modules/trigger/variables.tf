@@ -33,10 +33,10 @@ variable "existing_kms_cmk_arn" {
 variable "runtime_configuration" {
   description = "Configuration related to the runtime environment of the Lambda function."
   type = object({
+    account_id     = string
     lambda_name    = string
     lambda_arn     = string
     lambda_timeout = number
-
   })
 }
 

@@ -14,6 +14,10 @@ terraform {
       source  = "hashicorp/archive"
       version = ">= 2.0.0"
     }
+    null = {
+      source  = "hashicorp/null"
+      version = "~> 3.2"
+    }
   }
 }
 
@@ -49,12 +53,35 @@ locals {
 # ---------------------------------------------------------------------------------------------------------------------
 # ¦ LAMBDA
 # ---------------------------------------------------------------------------------------------------------------------
+locals {
+  package_source_path = var.lambda_settings.package.source_path
+}
+
+resource "null_resource" "stacksets_member_role_package" {
+  count = local.package_source_path != null ? (var.lambda_settings.package.files_to_inject != null ? 1 : 0) : 0
+
+  triggers = {
+    always_run = timestamp()
+  }
+  provisioner "local-exec" {
+    command     = <<EOT
+      %{for path, content in var.lambda_settings.package.files_to_inject~}
+      echo '${content}' > ${path}
+      %{endfor~}
+      sleep 10
+    EOT
+    on_failure  = fail
+    interpreter = ["/bin/bash", "-c"]
+  }
+}
+
 data "archive_file" "lambda_package" {
-  count = var.lambda_settings.package.source_path == null ? 0 : 1
+  count = local.package_source_path != null ? 1 : 0
 
   type        = "zip"
-  source_dir  = var.lambda_settings.package.source_path
+  source_dir  = local.package_source_path
   output_path = "${path.module}/${local.region_name_short}_zipped_package.zip"
+  depends_on  = [null_resource.stacksets_member_role_package]
 }
 
 
@@ -177,11 +204,13 @@ module "lambda_trigger" {
   trigger_settings     = var.trigger_settings
   existing_kms_cmk_arn = var.existing_kms_cmk_arn
   runtime_configuration = {
+    account_id     = data.aws_caller_identity.this.account_id
     lambda_name    = aws_lambda_function.this.function_name
     lambda_arn     = aws_lambda_function.this.arn
     lambda_timeout = aws_lambda_function.this.timeout
   }
   resource_tags = local.resource_tags
+  depends_on    = [aws_lambda_function.this]
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -194,6 +223,9 @@ module "lambda_execution_iam_role" {
   existing_kms_cmk_arn        = var.existing_kms_cmk_arn
   dead_letter_target_arn      = var.lambda_settings.error_handling != null ? (var.lambda_settings.error_handling.dead_letter_config != null ? var.lambda_settings.dead_letter_config.target_arn : null) : null
   runtime_configuration = {
+    account_id    = data.aws_caller_identity.this.account_id
+    region_name   = data.aws_region.this.name
+    region_short  = local.region_name_short
     lambda_name   = var.lambda_settings.function_name
     loggroup_name = local.loggroup_name
   }

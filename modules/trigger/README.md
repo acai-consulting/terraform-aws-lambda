@@ -31,15 +31,13 @@ No modules.
 | [aws_sns_topic_subscription.lambda_trigger](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic_subscription) | resource |
 | [aws_sqs_queue.lambda_trigger](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sqs_queue) | resource |
 | [aws_sqs_queue_policy.lambda_trigger](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sqs_queue_policy) | resource |
-| [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
 | [aws_iam_policy_document.lambda_trigger_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
-| [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_runtime_configuration"></a> [runtime\_configuration](#input\_runtime\_configuration) | Configuration related to the runtime environment of the Lambda function. | <pre>object({<br>    lambda_name    = string<br>    lambda_arn     = string<br>    lambda_timeout = number<br><br>  })</pre> | n/a | yes |
+| <a name="input_runtime_configuration"></a> [runtime\_configuration](#input\_runtime\_configuration) | Configuration related to the runtime environment of the Lambda function. | <pre>object({<br>    account_id     = string<br>    lambda_name    = string<br>    lambda_arn     = string<br>    lambda_timeout = number<br>  })</pre> | n/a | yes |
 | <a name="input_trigger_settings"></a> [trigger\_settings](#input\_trigger\_settings) | n/a | <pre>object({<br>    trigger_permissions = optional(list(object({<br>      principal      = string<br>      source_arn     = string<br>      source_account = string<br>    })), null)<br>    sqs = optional(object({<br>      access_policy_json_list = optional(list(string), [])<br>      inbound_sns_topics = optional(list(object(<br>        {<br>          sns_arn            = string<br>          filter_policy_json = optional(string, null)<br>        }<br>      )), [])<br>    }), null)<br>    schedule_expression = string<br>    event_rules = optional(list(object({<br>      name           = string<br>      description    = string<br>      event_bus_name = string<br>      event_pattern  = string<br>    })), null)<br>  })</pre> | n/a | yes |
 | <a name="input_existing_kms_cmk_arn"></a> [existing\_kms\_cmk\_arn](#input\_existing\_kms\_cmk\_arn) | KMS key ARN to be used to encrypt logs and sqs messages. | `string` | `null` | no |
 | <a name="input_resource_tags"></a> [resource\_tags](#input\_resource\_tags) | A map of tags to assign to the resources in this module. | `map(string)` | `{}` | no |

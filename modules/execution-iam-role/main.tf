@@ -6,8 +6,9 @@ terraform {
 
   required_providers {
     aws = {
-      source  = "hashicorp/aws"
-      version = ">= 5.00"
+      source                = "hashicorp/aws"
+      version               = ">= 5.00"
+      configuration_aliases = []
     }
   }
 }
@@ -27,12 +28,6 @@ data "aws_iam_role" "existing_execution_iam_role" {
 # ¦ LOCALS
 # ---------------------------------------------------------------------------------------------------------------------
 locals {
-  region_name_length = length(data.aws_region.current.name)
-  region_name_short = format("%s%s%s",
-    substr(data.aws_region.current.name, 0, 2),
-    substr(data.aws_region.current.name, 3, 1),
-    substr(data.aws_region.current.name, local.region_name_length - 1, 1)
-  )
   create_new_execution_iam_role = var.execution_iam_role_settings.new_iam_role != null
 
   new_execution_iam_role_name = local.create_new_execution_iam_role ? coalesce(
@@ -41,7 +36,7 @@ locals {
   ) : ""
 
   new_execution_iam_role = var.execution_iam_role_settings.new_iam_role
-  policy_name_suffix     = local.create_new_execution_iam_role ? format("For%s-%s", replace(title(replace(replace(var.runtime_configuration.lambda_name, "-", " "), "_", " ")), " ", ""), local.region_name_short) : ""
+  policy_name_suffix     = local.create_new_execution_iam_role ? format("For%s-%s", replace(title(replace(replace(var.runtime_configuration.lambda_name, "-", " "), "_", " ")), " ", ""), var.runtime_configuration.region_short) : ""
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -92,7 +87,7 @@ data "aws_iam_policy_document" "lambda_context" {
     sid       = "LogToCloudWatch"
     effect    = "Allow"
     actions   = ["logs:CreateLogStream", "logs:PutLogEvents"]
-    resources = ["arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:${var.runtime_configuration.loggroup_name}:*"]
+    resources = ["arn:aws:logs:${var.runtime_configuration.region_name}:${var.runtime_configuration.account_id}:log-group:${var.runtime_configuration.loggroup_name}:*"]
   }
 
   dynamic "statement" {
