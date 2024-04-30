@@ -90,7 +90,7 @@ resource "aws_lambda_function" "this" {
   #checkov:skip=CKV_AWS_272 : #TODO Code Signing will be added in a later release  
   function_name = var.lambda_settings.function_name
   description   = var.lambda_settings.description
-  layers        = var.lambda_settings.layer_names
+  layers        = var.lambda_settings.layer_names == null ? var.lambda_settings.layer_arn_list : var.lambda_settings.layer_names
   role          = module.lambda_execution_iam_role.arn
   handler       = var.lambda_settings.handler
 
