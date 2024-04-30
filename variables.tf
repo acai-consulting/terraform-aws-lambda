@@ -50,8 +50,8 @@ variable "lambda_settings" {
     }), null)
   })
   validation {
-    condition     = length(var.lambda_settings.layer_arn_list) > 0 ? var.lambda_settings.layer_names == null : true
-    error_message = "If layer_arns is provided, layer_names must be empty."
+    condition     = var.lambda_settings.layer_arn_list != null ? var.lambda_settings.layer_names == null : true
+    error_message = "If layer_arn_list is provided, layer_names must be empty. layer_names will be deprecated."
   }
   # validation of var.lambda_settings.config
   validation {
