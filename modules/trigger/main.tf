@@ -61,7 +61,7 @@ data "aws_iam_policy_document" "lambda_trigger_policy" {
   #checkov:skip=CKV_AWS_356 : Allow "sqs:*" for account principals
   count = var.trigger_settings.sqs != null ? 1 : 0
 
-  source_policy_documents = var.trigger_settings.sqs.access_policy_json_list
+  source_policy_documents   = var.trigger_settings.sqs.access_policy_json_list
   override_policy_documents = var.trigger_settings.sqs.management_permissions
   statement {
     sid     = "ManagementPermissions"
