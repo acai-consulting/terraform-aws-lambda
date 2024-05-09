@@ -1,10 +1,11 @@
 variable "lambda_settings" {
   description = "Settings for the Lambda function."
   type = object({
-    function_name = string
-    description   = optional(string, "not provided")
-    layer_names   = optional(list(string), null)
-    handler       = optional(string, "main.lambda_handler")
+    function_name  = string
+    description    = optional(string, "not provided")
+    layer_names    = optional(list(string), null) # will be deprecated
+    layer_arn_list = optional(list(string), null)
+    handler        = optional(string, "main.lambda_handler")
     config = object({
       runtime                = string
       architecture           = optional(string, "x86_64")
@@ -48,7 +49,10 @@ variable "lambda_settings" {
       subnet_ids         = list(string)
     }), null)
   })
-
+  validation {
+    condition     = var.lambda_settings.layer_arn_list != null ? var.lambda_settings.layer_names == null : true
+    error_message = "If layer_arn_list is provided, layer_names must be empty. layer_names will be deprecated."
+  }
   # validation of var.lambda_settings.config
   validation {
     condition     = contains(["x86_64", "arm64"], var.lambda_settings.config.architecture)

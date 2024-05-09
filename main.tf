@@ -37,7 +37,7 @@ locals {
       "module_lambda_provider" = "ACAI GmbH",
       "module_lambda_origin"   = "terraform registry",
       "module_lambda_source"   = "acai-consulting/lambda/aws",
-      "module_lambda_version"  = /*inject_version_start*/ "1.3.0" /*inject_version_end*/
+      "module_lambda_version"  = /*inject_version_start*/ "1.3.1" /*inject_version_end*/
     }
   )
   region_name_length = length(data.aws_region.this.name)
@@ -90,7 +90,7 @@ resource "aws_lambda_function" "this" {
   #checkov:skip=CKV_AWS_272 : #TODO Code Signing will be added in a later release  
   function_name = var.lambda_settings.function_name
   description   = var.lambda_settings.description
-  layers        = var.lambda_settings.layer_names
+  layers        = var.lambda_settings.layer_names == null ? var.lambda_settings.layer_arn_list : var.lambda_settings.layer_names
   role          = module.lambda_execution_iam_role.arn
   handler       = var.lambda_settings.handler
 

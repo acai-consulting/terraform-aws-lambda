@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.1](https://github.com/acai-consulting/terraform-aws-lambda/compare/1.3.0...1.3.1) (2024-04-30)
+
+
+### Bug Fixes
+
+* add correct layer_arn_list ([#18](https://github.com/acai-consulting/terraform-aws-lambda/issues/18)) ([b62646f](https://github.com/acai-consulting/terraform-aws-lambda/commit/b62646f713324099391f743f3fe09c92ca29491e))
+
 ## [1.3.0](https://github.com/acai-consulting/terraform-aws-lambda/compare/1.2.3...1.3.0) (2024-04-22)
 
 
