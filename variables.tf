@@ -125,6 +125,7 @@ variable "trigger_settings" {
       source_account = optional(string)
     })), [])
     sqs = optional(object({
+      management_permissions  = optional(list(string), []) # use sid = "ManagementPermissions" to override
       access_policy_json_list = optional(list(string), [])
       inbound_sns_topics = optional(list(object({
         sns_arn            = string
