@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.2](https://github.com/acai-consulting/terraform-aws-lambda/compare/1.3.1...1.3.2) (2024-05-09)
+
+
+### Bug Fixes
+
+* add sqs management permissions ([#19](https://github.com/acai-consulting/terraform-aws-lambda/issues/19)) ([ad88f2a](https://github.com/acai-consulting/terraform-aws-lambda/commit/ad88f2a205674f5419fb2d09c665d0ac1ba644dd))
+
 ## [1.3.1](https://github.com/acai-consulting/terraform-aws-lambda/compare/1.3.0...1.3.1) (2024-04-30)
 
 
