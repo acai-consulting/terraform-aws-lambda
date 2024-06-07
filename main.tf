@@ -37,7 +37,7 @@ locals {
       "module_lambda_provider" = "ACAI GmbH",
       "module_lambda_origin"   = "terraform registry",
       "module_lambda_source"   = "acai-consulting/lambda/aws",
-      "module_lambda_version"  = /*inject_version_start*/ "1.3.3" /*inject_version_end*/
+      "module_lambda_version"  = /*inject_version_start*/ "1.3.2" /*inject_version_end*/
     }
   )
   region_name_length = length(data.aws_region.this.name)
@@ -65,9 +65,9 @@ resource "null_resource" "stacksets_member_role_package" {
   }
 
   provisioner "local-exec" {
-    command     = <<EOT
+    command = <<EOT
       %{for path, content in var.lambda_settings.package.files_to_inject~}
-      echo '${replace(content, "`", "\\`")}' > ${path}
+      printf '%s\n' "${replace(content, "`","\\`")}" > ${path}
       %{endfor~}
       sleep 10
     EOT
