@@ -55,25 +55,14 @@ locals {
 # ---------------------------------------------------------------------------------------------------------------------
 locals {
   package_source_path = var.lambda_settings.package.source_path
+  files_to_inject = var.lambda_settings.package.files_to_inject != null ? var.lambda_settings.package.files_to_inject : {} 
 }
 
-resource "null_resource" "stacksets_member_role_package" {
-  count = local.package_source_path != null ? (var.lambda_settings.package.files_to_inject != null ? 1 : 0) : 0
+resource "local_file" "files_to_inject" {
+  count = local.package_source_path != null ? length(local.files_to_inject) : 0
 
-  triggers = {
-    always_run = timestamp()
-  }
-
-  provisioner "local-exec" {
-    command = <<EOT
-      %{for path, content in var.lambda_settings.package.files_to_inject~}
-      printf '%s\n' "${replace(content, "`","\\`")}" > ${path}
-      %{endfor~}
-      sleep 10
-    EOT
-    on_failure  = fail
-    interpreter = ["/bin/bash", "-c"]
-  }
+  content  = element(values(local.files_to_inject), count.index)
+  filename = "${local.package_source_path}/${element(keys(local.files_to_inject), count.index)}"
 }
 
 data "archive_file" "lambda_package" {
@@ -82,7 +71,7 @@ data "archive_file" "lambda_package" {
   type        = "zip"
   source_dir  = local.package_source_path
   output_path = "${path.module}/${local.region_name_short}_zipped_package.zip"
-  depends_on  = [null_resource.stacksets_member_role_package]
+  depends_on  = [local_file.files_to_inject]
 }
 
 
