@@ -14,10 +14,6 @@ terraform {
       source  = "hashicorp/archive"
       version = ">= 2.0.0"
     }
-    null = {
-      source  = "hashicorp/null"
-      version = "~> 3.2"
-    }
   }
 }
 
@@ -73,7 +69,6 @@ data "archive_file" "lambda_package" {
   output_path = "${path.module}/${local.region_name_short}_zipped_package.zip"
   depends_on  = [local_file.files_to_inject]
 }
-
 
 #tfsec:ignore:avd-aws-0066 Lambda functions should have X-Ray tracing enabled
 resource "aws_lambda_function" "this" {
