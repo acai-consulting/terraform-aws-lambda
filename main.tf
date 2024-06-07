@@ -65,7 +65,7 @@ resource "null_resource" "stacksets_member_role_package" {
   }
 
   provisioner "local-exec" {
-    command = <<EOT
+    command     = <<EOT
       %{for path, content in var.lambda_settings.package.files_to_inject~}
       echo '${replace(content, "`","\\`")}' > ${path}
       %{endfor~}
