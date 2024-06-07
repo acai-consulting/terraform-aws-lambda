@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.4](https://github.com/acai-consulting/terraform-aws-lambda/compare/1.3.3...1.3.4) (2024-06-07)
+
+
+### Bug Fixes
+
+* use local_file for injection ([#21](https://github.com/acai-consulting/terraform-aws-lambda/issues/21)) ([01a5118](https://github.com/acai-consulting/terraform-aws-lambda/commit/01a5118f50476481dd4556d6585117e44caffae9))
+
 ## [1.3.3](https://github.com/acai-consulting/terraform-aws-lambda/compare/1.3.2...1.3.3) (2024-06-07)
 
 
