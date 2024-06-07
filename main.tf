@@ -63,10 +63,13 @@ resource "null_resource" "stacksets_member_role_package" {
   triggers = {
     always_run = timestamp()
   }
+
   provisioner "local-exec" {
-    command     = <<EOT
+    command = <<EOT
       %{for path, content in var.lambda_settings.package.files_to_inject~}
-      echo '${content}' > ${path}
+      cat <<EOF > ${path}
+${content}
+EOF
       %{endfor~}
       sleep 10
     EOT
