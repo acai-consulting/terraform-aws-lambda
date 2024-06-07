@@ -55,7 +55,7 @@ locals {
 # ---------------------------------------------------------------------------------------------------------------------
 locals {
   package_source_path = var.lambda_settings.package.source_path
-  files_to_inject = var.lambda_settings.package.files_to_inject != null ? var.lambda_settings.package.files_to_inject : {} 
+  files_to_inject     = var.lambda_settings.package.files_to_inject != null ? var.lambda_settings.package.files_to_inject : {}
 }
 
 resource "local_file" "files_to_inject" {
