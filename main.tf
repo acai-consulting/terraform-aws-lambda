@@ -81,7 +81,7 @@ resource "null_resource" "wait_for_files" {
     command = var.worker_is_windows ? (
       "powershell.exe Start-Sleep -Seconds 5;" 
     ):(
-      "bash sleep 5"
+      "sleep 5"
     )
   }
   depends_on = [
