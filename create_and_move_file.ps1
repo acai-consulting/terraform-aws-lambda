@@ -17,16 +17,20 @@ try {
 
   Write-Host "FILE_CONTENT $FILE_CONTENT"
 
-  $DecodedContent = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($FILE_CONTENT))
-
+  # Attempt to decode the Base64 content
+  try {
+    $DecodedContent = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($FILE_CONTENT))
+  } catch {
+    # If decoding fails, assume the content is not Base64 encoded
+    $DecodedContent = $FILE_CONTENT
+  }
 
   # Ensure the destination directory exists
   $FullPath = Join-Path -Path $DEST_PATH -ChildPath (Split-Path -Path $FILE_NAME -Parent)
   if (-not (Test-Path -Path $FullPath)) {
       New-Item -ItemType Directory -Force -Path $FullPath | Out-Null
   }
-  
-  
+
   $FilePath = Join-Path -Path $DEST_PATH -ChildPath $FILE_NAME
   Set-Content -Path $FilePath -Value $DecodedContent -NoNewline
   Write-Host "File $FILE_NAME created successfully at $FilePath"

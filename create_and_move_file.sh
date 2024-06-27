@@ -23,7 +23,21 @@ fi
 DEST_DIR=$(dirname "$DEST_PATH/$FILE_NAME")
 mkdir -p "$DEST_DIR"
 
-# Decode the base64 content and write to file using printf
-echo "$FILE_CONTENT" | base64 --decode > "$DEST_PATH/$FILE_NAME"
+# Function to check if a string is base64 encoded
+is_base64() {
+  echo "$1" | base64 --decode &> /dev/null
+  if [ $? -eq 0 ]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+# Check if FILE_CONTENT is base64 encoded and decode if necessary
+if is_base64 "$FILE_CONTENT"; then
+  echo "$FILE_CONTENT" | base64 --decode > "$DEST_PATH/$FILE_NAME"
+else
+  echo "$FILE_CONTENT" > "$DEST_PATH/$FILE_NAME"
+fi
 
 echo "File $FILE_NAME created successfully at $DEST_PATH/$FILE_NAME"

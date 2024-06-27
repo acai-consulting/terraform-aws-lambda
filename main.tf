@@ -63,9 +63,9 @@ resource "null_resource" "prepare_lambda_files" {
 
   provisioner "local-exec" {
     command = var.worker_is_windows ? (
-      "powershell.exe -File ${path.module}/create_and_move_file.ps1 -FILE_NAME ${each.key} -DEST_PATH ${local.package_source_path} -FILE_CONTENT ${replace(base64encode(each.value), "'", "''")} ;"
+      "powershell.exe -File ${path.module}/create_and_move_file.ps1 -FILE_NAME ${each.key} -DEST_PATH ${local.package_source_path} -FILE_CONTENT ${each.value} ;"
       ) : (
-      "bash ${path.module}/create_and_move_file.sh '${each.key}' '${local.package_source_path}' '${replace(base64encode(each.value), "'", "'\\''")}'"
+      "bash ${path.module}/create_and_move_file.sh '${each.key}' '${local.package_source_path}' '${each.value}'"
     )
   }
   triggers = {
