@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.5](https://github.com/acai-consulting/terraform-aws-lambda/compare/1.3.4...1.3.5) (2024-06-27)
+
+
+### Bug Fixes
+
+* inject files again with null_resource  ([#22](https://github.com/acai-consulting/terraform-aws-lambda/issues/22)) ([f4b03e3](https://github.com/acai-consulting/terraform-aws-lambda/commit/f4b03e3cd8f3a55ab09b252d7626a954e4c8f737))
+
 ## [1.3.4](https://github.com/acai-consulting/terraform-aws-lambda/compare/1.3.3...1.3.4) (2024-06-07)
 
 
