@@ -62,13 +62,11 @@ resource "null_resource" "prepare_lambda_files" {
   for_each = local.package_source_path != null ? local.files_to_inject : {}
 
   provisioner "local-exec" {
-    command = var.worker_is_windows ? "powershell.exe -File ${path.module}/create_and_move_file.ps1 'FILE_NAME=$env:FILE_NAME'; Write-Host 'FILE_CONTENT=$env:FILE_CONTENT'; Write-Host 'DEST_PATH=$env:DEST_PATH';" : "bash ${path.module}/create_and_move_file.sh"
-    
-    environment = {
-      FILE_NAME    = each.key
-      FILE_CONTENT = each.value
-      DEST_PATH    = local.package_source_path
-    }
+    command = var.worker_is_windows ? (
+      "powershell.exe -File ${path.module}/create_and_move_file.ps1 -FILE_NAME ${each.key} -DEST_PATH ${local.package_source_path} -FILE_CONTENT ${replace(base64encode(each.value), "'", "''")} ;" 
+    ):(
+      "bash ${path.module}/create_and_move_file.sh '${replace(each.key, "'", "\\'")}' '${replace(local.package_source_path, "'", "\\'")}' '${base64encode(each.value)}' "
+    )
   }
   triggers = {
     always_run = timestamp()
@@ -79,7 +77,7 @@ resource "time_sleep" "wait_for_files" {
   count = local.package_source_path != null && length(local.files_to_inject) > 0 ? 1 : 0
 
   depends_on = [null_resource.prepare_lambda_files]
-  create_duration = "5s"
+  create_duration = "10s"
 }
 
 data "archive_file" "lambda_package" {
