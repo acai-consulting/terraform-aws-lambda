@@ -14,10 +14,14 @@ terraform {
       source  = "hashicorp/archive"
       version = ">= 2.0.0"
     }
-    local = {
-      source  = "hashicorp/local"
-      version = "= 2.5.1"
+    null = {
+      source  = "hashicorp/null"
+      version = "~> 3.1"  
     }
+    time = {
+      source  = "hashicorp/time"
+      version = "~> 0.7"  
+    }    
   }
 }
 
@@ -81,7 +85,7 @@ resource "null_resource" "wait_for_files" {
     command = var.worker_is_windows ? (
       "powershell.exe Start-Sleep -Seconds 5;" 
     ):(
-      "bash sleep 5"
+      "sleep 5"
     )
   }
   depends_on = [
