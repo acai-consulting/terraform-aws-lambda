@@ -49,15 +49,10 @@ module "use_case_1_lambda" {
 hello2
 ```python
 account_context = {
-    "accountId": "905418151472",
-    "accountName": "acai_aws-lab1_wl2",
+    "accountId": "471112796356",
+    "accountName": "acai_testbed-lab1_wl2",
     "accountStatus": "ACTIVE",
-    "accountTags": {
-        "owner": "Finance",
-        "environment": "Non-Prod",
-        "application": "SAP",
-        "type": "Workload",
-
+```
 EOT
       }
     }
