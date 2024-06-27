@@ -458,7 +458,7 @@ module "use_case_4_lambda" {
 |------|---------|
 | <a name="provider_archive"></a> [archive](#provider\_archive) | >= 2.0.0 |
 | <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.00 |
-| <a name="provider_local"></a> [local](#provider\_local) | = 2.5.1 |
+| <a name="provider_null"></a> [null](#provider\_null) | n/a |
 
 ## Modules
 
@@ -477,7 +477,8 @@ module "use_case_4_lambda" {
 | [aws_iam_role_policy_attachment.aws_xray_write_only_access](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_lambda_function.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_function) | resource |
 | [aws_lambda_permission.allow_lambda_logs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_permission) | resource |
-| [local_file.files_to_inject](https://registry.terraform.io/providers/hashicorp/local/2.5.1/docs/resources/file) | resource |
+| [null_resource.prepare_lambda_files](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
+| [null_resource.wait_for_files](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
 | [archive_file.lambda_package](https://registry.terraform.io/providers/hashicorp/archive/latest/docs/data-sources/file) | data source |
 | [aws_caller_identity.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
 | [aws_iam_policy_document.triggering_sqs_permissions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
@@ -492,6 +493,7 @@ module "use_case_4_lambda" {
 | <a name="input_existing_kms_cmk_arn"></a> [existing\_kms\_cmk\_arn](#input\_existing\_kms\_cmk\_arn) | KMS key ARN to be used to encrypt logs and sqs messages. | `string` | `null` | no |
 | <a name="input_resource_tags"></a> [resource\_tags](#input\_resource\_tags) | A map of tags to assign to the resources in this module. | `map(string)` | `{}` | no |
 | <a name="input_trigger_settings"></a> [trigger\_settings](#input\_trigger\_settings) | Settings for the Lambda function's trigger settings, including permissions, SQS triggers, schedule expressions, and event rules. | <pre>object({<br>    trigger_permissions = optional(list(object({<br>      principal      = string<br>      source_arn     = string<br>      source_account = optional(string)<br>    })), [])<br>    sqs = optional(object({<br>      management_permissions  = optional(list(string), []) # use sid = "ManagementPermissions" to override<br>      access_policy_json_list = optional(list(string), [])<br>      inbound_sns_topics = optional(list(object({<br>        sns_arn            = string<br>        filter_policy_json = optional(string, null)<br>      })), [])<br>    }), null)<br>    schedule_expression = optional(string, null)<br>    event_rules = optional(list(object({<br>      name           = string<br>      description    = optional(string, "")<br>      event_bus_name = optional(string, "default")<br>      event_pattern  = string<br>    })), [])<br>  })</pre> | `{}` | no |
+| <a name="input_worker_is_windows"></a> [worker\_is\_windows](#input\_worker\_is\_windows) | Boolean flag to indicate if the system is Windows | `bool` | `false` | no |
 
 ## Outputs
 

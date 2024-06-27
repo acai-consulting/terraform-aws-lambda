@@ -67,8 +67,8 @@ resource "null_resource" "prepare_lambda_files" {
 
   provisioner "local-exec" {
     command = var.worker_is_windows ? (
-      "powershell.exe -File ${path.module}/create_and_move_file.ps1 -FILE_NAME ${each.key} -DEST_PATH ${local.package_source_path} -FILE_CONTENT ${replace(base64encode(each.value), "'", "''")} ;" 
-    ):(
+      "powershell.exe -File ${path.module}/create_and_move_file.ps1 -FILE_NAME ${each.key} -DEST_PATH ${local.package_source_path} -FILE_CONTENT ${replace(base64encode(each.value), "'", "''")} ;"
+      ) : (
       "bash ${path.module}/create_and_move_file.sh '${replace(each.key, "'", "\\'")}' '${replace(local.package_source_path, "'", "\\'")}' '${base64encode(each.value)}' "
     )
   }
@@ -83,8 +83,8 @@ resource "null_resource" "wait_for_files" {
 
   provisioner "local-exec" {
     command = var.worker_is_windows ? (
-      "powershell.exe Start-Sleep -Seconds 5;" 
-    ):(
+      "powershell.exe Start-Sleep -Seconds 5;"
+      ) : (
       "sleep 5"
     )
   }
@@ -102,7 +102,7 @@ data "archive_file" "lambda_package" {
   type        = "zip"
   source_dir  = local.package_source_path
   output_path = "${path.module}/${local.region_name_short}_zipped_package.zip"
-  depends_on = [null_resource.wait_for_files]
+  depends_on  = [null_resource.wait_for_files]
 }
 
 #tfsec:ignore:avd-aws-0066 Lambda functions should have X-Ray tracing enabled

@@ -51,7 +51,8 @@ hello2
 account_context = {
     "accountId": "471112796356",
     "accountName": "acai_testbed-lab1_wl2",
-    "accountStatus": "ACTIVE",
+    "accountStatus": "ACTIVE"
+}
 ```
 EOT
       }
@@ -64,7 +65,7 @@ EOT
       ]
     }
   }
-  worker_is_windows = true
+  #worker_is_windows = true
   resource_tags = var.resource_tags
 }
 

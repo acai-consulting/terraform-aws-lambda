@@ -226,7 +226,7 @@ variable "existing_kms_cmk_arn" {
 variable "worker_is_windows" {
   type        = bool
   description = "Boolean flag to indicate if the system is Windows"
-  default     = false  # Set to true for Windows systems
+  default     = false # Set to true for Windows systems
 }
 
 variable "resource_tags" {

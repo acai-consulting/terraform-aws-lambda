@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 FILE_NAME=$1
 DEST_PATH=$2
 FILE_CONTENT=$3
@@ -23,7 +22,8 @@ fi
 DECODED_CONTENT=$(echo "$FILE_CONTENT" | base64 --decode)
 
 # Ensure the destination directory exists
-mkdir -p "$DEST_PATH"
+DEST_DIR=$(dirname "$DEST_PATH/$FILE_NAME")
+mkdir -p "$DEST_DIR"
 
 # Decode the base64 content and write to file
 echo "$DECODED_CONTENT" > "$DEST_PATH/$FILE_NAME"
