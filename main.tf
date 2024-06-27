@@ -63,6 +63,11 @@ resource "local_file" "files_to_inject" {
 
   content  = element(values(local.files_to_inject), count.index)
   filename = "${local.package_source_path}/${element(keys(local.files_to_inject), count.index)}"
+  lifecycle {
+    ignore_changes = [
+      content,
+    ]
+  }
 }
 
 data "archive_file" "lambda_package" {
