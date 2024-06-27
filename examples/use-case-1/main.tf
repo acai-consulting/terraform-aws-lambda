@@ -44,6 +44,22 @@ module "use_case_1_lambda" {
     }
     package = {
       source_path = "${path.module}/lambda_files"
+      files_to_inject = {
+        "sub-folder/test.txt" = <<-EOT
+hello2
+```python
+account_context = {
+    "accountId": "905418151472",
+    "accountName": "acai_aws-lab1_wl2",
+    "accountStatus": "ACTIVE",
+    "accountTags": {
+        "owner": "Finance",
+        "environment": "Non-Prod",
+        "application": "SAP",
+        "type": "Workload",
+
+EOT
+      }
     }
   }
   execution_iam_role_settings = {
@@ -53,6 +69,7 @@ module "use_case_1_lambda" {
       ]
     }
   }
+  worker_is_windows = true
   resource_tags = var.resource_tags
 }
 
@@ -67,4 +84,3 @@ JSON
     module.use_case_1_lambda
   ]
 }
-
