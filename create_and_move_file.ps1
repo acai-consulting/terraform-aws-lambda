@@ -30,6 +30,7 @@ try {
   $FilePath = Join-Path -Path $DEST_PATH -ChildPath $FILE_NAME
   Set-Content -Path $FilePath -Value $DecodedContent -NoNewline
   Write-Host "File $FILE_NAME created successfully at $FilePath"
+
 } catch {
   Write-Error "Failed to create file $FILE_NAME. Error: $_"
   exit 1

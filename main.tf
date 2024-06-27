@@ -73,11 +73,23 @@ resource "null_resource" "prepare_lambda_files" {
   }
 }
 
-resource "time_sleep" "wait_for_files" {
-  count = local.package_source_path != null && length(local.files_to_inject) > 0 ? 1 : 0
 
-  depends_on = [null_resource.prepare_lambda_files]
-  create_duration = "10s"
+resource "null_resource" "wait_for_files" {
+  for_each = local.package_source_path != null ? local.files_to_inject : {}
+
+  provisioner "local-exec" {
+    command = var.worker_is_windows ? (
+      "powershell.exe Start-Sleep -Seconds 5;" 
+    ):(
+      "bash sleep 5"
+    )
+  }
+  depends_on = [
+    null_resource.prepare_lambda_files
+  ]
+  triggers = {
+    always_run = timestamp()
+  }
 }
 
 data "archive_file" "lambda_package" {
@@ -86,7 +98,7 @@ data "archive_file" "lambda_package" {
   type        = "zip"
   source_dir  = local.package_source_path
   output_path = "${path.module}/${local.region_name_short}_zipped_package.zip"
-  depends_on  = [time_sleep.wait_for_files]
+  depends_on = [null_resource.wait_for_files]
 }
 
 #tfsec:ignore:avd-aws-0066 Lambda functions should have X-Ray tracing enabled
