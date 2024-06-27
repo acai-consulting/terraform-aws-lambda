@@ -44,6 +44,18 @@ module "use_case_1_lambda" {
     }
     package = {
       source_path = "${path.module}/lambda_files"
+      files_to_inject = {
+        "sub-folder/test.txt" = <<-EOT
+hello2
+```python
+account_context = {
+    "accountId": "471112796356",
+    "accountName": "acai_testbed-lab1_wl2",
+    "accountStatus": "ACTIVE"
+}
+```
+EOT
+      }
     }
   }
   execution_iam_role_settings = {
@@ -53,6 +65,7 @@ module "use_case_1_lambda" {
       ]
     }
   }
+  #worker_is_windows = true
   resource_tags = var.resource_tags
 }
 
@@ -67,4 +80,3 @@ JSON
     module.use_case_1_lambda
   ]
 }
-

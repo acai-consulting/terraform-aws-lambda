@@ -14,9 +14,9 @@ terraform {
       source  = "hashicorp/archive"
       version = ">= 2.0.0"
     }
-    local = {
-      source  = "hashicorp/local"
-      version = "= 2.5.1"
+    null = {
+      source  = "hashicorp/null"
+      version = "~> 3.1"
     }
   }
 }
@@ -55,14 +55,41 @@ locals {
 # ---------------------------------------------------------------------------------------------------------------------
 locals {
   package_source_path = var.lambda_settings.package.source_path
-  files_to_inject     = var.lambda_settings.package.files_to_inject != null ? var.lambda_settings.package.files_to_inject : {}
+  files_to_inject     = coalesce(var.lambda_settings.package.files_to_inject, {})
 }
 
-resource "local_file" "files_to_inject" {
-  count = local.package_source_path != null ? length(local.files_to_inject) : 0
+resource "null_resource" "prepare_lambda_files" {
+  for_each = local.package_source_path != null ? local.files_to_inject : {}
 
-  content  = element(values(local.files_to_inject), count.index)
-  filename = "${local.package_source_path}/${element(keys(local.files_to_inject), count.index)}"
+  provisioner "local-exec" {
+    command = var.worker_is_windows ? (
+      "powershell.exe -File ${path.module}/create_and_move_file.ps1 -FILE_NAME ${each.key} -DEST_PATH ${local.package_source_path} -FILE_CONTENT ${each.value} ;"
+      ) : (
+      "bash ${path.module}/create_and_move_file.sh '${each.key}' '${local.package_source_path}' '${each.value}'"
+    )
+  }
+  triggers = {
+    always_run = timestamp()
+  }
+}
+
+
+resource "null_resource" "wait_for_files" {
+  for_each = local.package_source_path != null ? local.files_to_inject : {}
+
+  provisioner "local-exec" {
+    command = var.worker_is_windows ? (
+      "powershell.exe Start-Sleep -Seconds 5;"
+      ) : (
+      "sleep 5"
+    )
+  }
+  depends_on = [
+    null_resource.prepare_lambda_files
+  ]
+  triggers = {
+    always_run = timestamp()
+  }
 }
 
 data "archive_file" "lambda_package" {
@@ -71,7 +98,7 @@ data "archive_file" "lambda_package" {
   type        = "zip"
   source_dir  = local.package_source_path
   output_path = "${path.module}/${local.region_name_short}_zipped_package.zip"
-  depends_on  = [local_file.files_to_inject]
+  depends_on  = [null_resource.wait_for_files]
 }
 
 #tfsec:ignore:avd-aws-0066 Lambda functions should have X-Ray tracing enabled
