@@ -19,13 +19,11 @@ if [ -z "$FILE_CONTENT" ]; then
   exit 1
 fi
 
-DECODED_CONTENT=$(echo "$FILE_CONTENT" | base64 --decode)
-
 # Ensure the destination directory exists
 DEST_DIR=$(dirname "$DEST_PATH/$FILE_NAME")
 mkdir -p "$DEST_DIR"
 
-# Decode the base64 content and write to file
-echo "$DECODED_CONTENT" > "$DEST_PATH/$FILE_NAME"
+# Decode the base64 content and write to file using printf
+echo "$FILE_CONTENT" | base64 --decode > "$DEST_PATH/$FILE_NAME"
 
 echo "File $FILE_NAME created successfully at $DEST_PATH/$FILE_NAME"
