@@ -55,11 +55,11 @@ locals {
 # ---------------------------------------------------------------------------------------------------------------------
 locals {
   package_source_path = var.lambda_settings.package.source_path
-  files_to_inject     = coalesce(var.lambda_settings.package.files_to_inject, {})
+  content_to_inject   = coalesce(var.lambda_settings.package.content_to_inject, {})
 }
 
 resource "null_resource" "prepare_lambda_files" {
-  for_each = local.package_source_path != null ? local.files_to_inject : {}
+  for_each = local.package_source_path != null ? local.content_to_inject : {}
 
   provisioner "local-exec" {
     command = var.worker_is_windows ? (
@@ -78,9 +78,8 @@ resource "null_resource" "prepare_lambda_files" {
   }  
 }
 
-
 resource "null_resource" "wait_for_files" {
-  for_each = local.package_source_path != null ? local.files_to_inject : {}
+  for_each = local.package_source_path != null ? local.content_to_inject : {}
 
   provisioner "local-exec" {
     command = var.worker_is_windows ? (
@@ -107,6 +106,13 @@ data "archive_file" "lambda_package" {
 
   type        = "zip"
   source_dir  = local.package_source_path
+  dynamic "source" {
+    for_each = var.lambda_settings.package.files_to_inject
+    content {
+      filename = source.value
+      content  = file("${source.value}")
+    }
+  }  
   output_path = "${path.module}/${local.region_name_short}_zipped_package.zip"
   depends_on  = [null_resource.wait_for_files]
 }
