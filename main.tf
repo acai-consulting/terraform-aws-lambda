@@ -110,7 +110,7 @@ data "archive_file" "lambda_package" {
     for_each = var.lambda_settings.package.files_to_inject
     content {
       filename = source.value
-      content  = file("${source.value}")
+      content  = file("${source.key}")
     }
   }  
   output_path = "${path.module}/${local.region_name_short}_zipped_package.zip"

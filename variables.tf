@@ -25,11 +25,11 @@ variable "lambda_settings" {
       }), null)
     }), null)
     package = object({
-      type            = optional(string, "Zip")
-      local_path      = optional(string, null)
-      source_path     = optional(string, null)
-      files_to_inject = optional(list(string), null) # list with path/filename
-      content_to_inject = optional(map(string), null) # map with path/filename as key and file-content as value
+      type              = optional(string, "Zip")
+      local_path        = optional(string, null)
+      source_path       = optional(string, null)
+      files_to_inject   = optional(list(string), null) # map with source - path/filename as key and target - path/filename as value
+      content_to_inject = optional(map(string), null)  # map with path/filename as key and file-content as value
     })
     environment_variables          = optional(map(string), {})
     reserved_concurrent_executions = optional(number, -1)
