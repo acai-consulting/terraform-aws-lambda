@@ -56,6 +56,7 @@ locals {
 locals {
   package_source_path = var.lambda_settings.package.source_path
   content_to_inject   = coalesce(var.lambda_settings.package.content_to_inject, {})
+  files_to_inject     = coalesce(var.lambda_settings.package.files_to_inject, {})
 }
 
 resource "null_resource" "prepare_lambda_files" {
@@ -107,7 +108,7 @@ data "archive_file" "lambda_package" {
   type        = "zip"
   source_dir  = local.package_source_path
   dynamic "source" {
-    for_each = var.lambda_settings.package.files_to_inject
+    for_each = local.files_to_inject
     content {
       filename = source.value
       content  = file("${source.key}")
