@@ -71,6 +71,11 @@ resource "null_resource" "prepare_lambda_files" {
   triggers = {
     always_run = timestamp()
   }
+ lifecycle {
+    ignore_changes = [
+      triggers
+    ]
+  }  
 }
 
 
@@ -90,6 +95,11 @@ resource "null_resource" "wait_for_files" {
   triggers = {
     always_run = timestamp()
   }
+ lifecycle {
+    ignore_changes = [
+      triggers
+    ]
+  }  
 }
 
 data "archive_file" "lambda_package" {
