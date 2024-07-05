@@ -55,67 +55,30 @@ locals {
 # ---------------------------------------------------------------------------------------------------------------------
 locals {
   package_source_path = var.lambda_settings.package.source_path
-  content_to_inject   = coalesce(var.lambda_settings.package.content_to_inject, {})
-  files_to_inject     = coalesce(var.lambda_settings.package.files_to_inject, {})
-}
+  lambda_file_paths = tolist(fileset(local.package_source_path, "**/*"))
 
-resource "null_resource" "prepare_lambda_files" {
-  for_each = local.package_source_path != null ? local.content_to_inject : {}
-
-  provisioner "local-exec" {
-    command = var.worker_is_windows ? (
-      "powershell.exe -File ${path.module}/create_and_move_file.ps1 -FILE_NAME ${each.key} -DEST_PATH ${local.package_source_path} -FILE_CONTENT ${each.value} ;"
-      ) : (
-      "bash ${path.module}/create_and_move_file.sh '${each.key}' '${local.package_source_path}' '${each.value}'"
-    )
-  }
-  triggers = {
-    always_run = timestamp()
-  }
- lifecycle {
-    ignore_changes = [
-      triggers
-    ]
-  }  
-}
-
-resource "null_resource" "wait_for_files" {
-  for_each = local.package_source_path != null ? local.content_to_inject : {}
-
-  provisioner "local-exec" {
-    command = var.worker_is_windows ? (
-      "powershell.exe Start-Sleep -Seconds 5;"
-      ) : (
-      "sleep 5"
-    )
-  }
-  depends_on = [
-    null_resource.prepare_lambda_files
-  ]
-  triggers = {
-    always_run = timestamp()
-  }
- lifecycle {
-    ignore_changes = [
-      triggers
-    ]
-  }  
+  lambda_package_map = merge(
+    { for file in local.lambda_file_paths : file => file("${local.package_source_path}/${file}") },
+    coalesce(var.lambda_settings.package.files_to_inject, {})
+  )
 }
 
 data "archive_file" "lambda_package" {
   count = local.package_source_path != null ? 1 : 0
 
   type        = "zip"
-  source_dir  = local.package_source_path
   dynamic "source" {
-    for_each = local.files_to_inject
+    for_each = local.lambda_package_map
     content {
-      filename = source.value
-      content  = file("${source.key}")
+      filename = source.key
+      content  = source.value
     }
   }  
+  source {
+    filename = "README.md"
+    content  = "Add your readme here."
+  }
   output_path = "${path.module}/${local.region_name_short}_zipped_package.zip"
-  depends_on  = [null_resource.wait_for_files]
 }
 
 #tfsec:ignore:avd-aws-0066 Lambda functions should have X-Ray tracing enabled

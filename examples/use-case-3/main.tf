@@ -76,7 +76,7 @@ module "use_case_3_lambda1" {
       ACCOUNT_ID = data.aws_caller_identity.current.account_id
     }
     package = {
-      source_path = "${path.module}/lambda1_files"
+      source_path = "${path.module}/lambda1-files"
     }
   }
   execution_iam_role_settings = {
@@ -122,7 +122,7 @@ module "use_case_3_lambda2" {
       ACCOUNT_ID = data.aws_caller_identity.current.account_id
     }
     package = {
-      source_path = "${path.module}/lambda2_files"
+      source_path = "${path.module}/lambda2-files"
     }
   }
   trigger_settings = {

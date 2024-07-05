@@ -128,7 +128,7 @@ module "use_case_4_lambda" {
       ACCOUNT_ID = data.aws_caller_identity.current.account_id
     }
     package = {
-      source_path = "${path.module}/lambda_files"
+      source_path = "${path.module}/lambda-files"
     }
   }
   trigger_settings = {
