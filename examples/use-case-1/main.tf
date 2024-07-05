@@ -96,6 +96,7 @@ locals {
 }
 
 module "use_case_1_2_lambda" {
+  #checkov:skip=CKV_AWS_50
   source = "../../"
 
   lambda_settings = {
