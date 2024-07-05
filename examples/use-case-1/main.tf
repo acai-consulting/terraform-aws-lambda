@@ -106,10 +106,10 @@ module "use_case_1_2_lambda" {
       runtime = "python3.10"
     }
     package = {
-      source_path     = "${path.module}/lambda-files"
+      source_path = "${path.module}/lambda-files"
       files_to_inject = merge(
         local.semper_policies_map,
-        {"README.md": "Override README.md"}
+        { "README.md" : "Override README.md" }
       )
     }
   }

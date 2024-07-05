@@ -55,7 +55,7 @@ locals {
 # ---------------------------------------------------------------------------------------------------------------------
 locals {
   package_source_path = var.lambda_settings.package.source_path
-  lambda_file_paths = tolist(fileset(local.package_source_path, "**/*"))
+  lambda_file_paths   = tolist(fileset(local.package_source_path, "**/*"))
 
   lambda_package_map = merge(
     { for file in local.lambda_file_paths : file => file("${local.package_source_path}/${file}") },
@@ -66,14 +66,14 @@ locals {
 data "archive_file" "lambda_package" {
   count = local.package_source_path != null ? 1 : 0
 
-  type        = "zip"
+  type = "zip"
   dynamic "source" {
     for_each = local.lambda_package_map
     content {
       filename = source.key
       content  = source.value
     }
-  }  
+  }
   source {
     filename = "README.md"
     content  = "Add your readme here."
