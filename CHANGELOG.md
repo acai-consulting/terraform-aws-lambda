@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.6](https://github.com/acai-consulting/terraform-aws-lambda/compare/1.3.5...1.3.6) (2024-07-05)
+
+
+### Bug Fixes
+
+* refactor generation of Lambda package ([#23](https://github.com/acai-consulting/terraform-aws-lambda/issues/23)) ([0552783](https://github.com/acai-consulting/terraform-aws-lambda/commit/0552783eb17ad239ae0c58115c3971e6540c5695))
+
 ## [1.3.5](https://github.com/acai-consulting/terraform-aws-lambda/compare/1.3.4...1.3.5) (2024-06-27)
 
 
