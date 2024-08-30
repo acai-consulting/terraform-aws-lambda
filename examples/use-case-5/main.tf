@@ -18,26 +18,25 @@ terraform {
 # ---------------------------------------------------------------------------------------------------------------------
 data "aws_caller_identity" "current" {}
 
-data "aws_iam_policy_document" "lambda_permission" {
-  statement {
-    effect = "Allow"
-    actions = [
-      "logs:DescribeLogGroups",
-      "iam:ListRoles"
-    ]
-    resources = ["*"]
+
+# ---------------------------------------------------------------------------------------------------------------------
+# ¦ USE_CASE_5_LAMBDA
+# ---------------------------------------------------------------------------------------------------------------------
+locals {
+  file_paths = fileset("${path.module}/semper-policies/", "**/*.json")
+  semper_policies_map = {
+    for file in local.file_paths :
+    "semper-policies/${file}" => file("${path.module}/semper-policies/${file}")
   }
 }
 
-# ---------------------------------------------------------------------------------------------------------------------
-# ¦ USE_CASE_1_LAMBDA
-# ---------------------------------------------------------------------------------------------------------------------
-module "use_case_1_lambda" {
+module "use_case_5_lambda" {
+  #checkov:skip=CKV_AWS_50
   source = "../../"
 
   lambda_settings = {
-    function_name = "${var.function_name}_1"
-    description   = "This Lambda will list all CloudWatch LogGroups and IAM Roles and return them as JSON"
+    function_name = "${var.function_name}_5"
+    description   = "This sample will inject the content of a 'local' folder into the Lambda package"
     handler       = "main.lambda_handler"
     config = {
       runtime = "python3.10"
@@ -47,27 +46,36 @@ module "use_case_1_lambda" {
     }
     package = {
       source_path = "${path.module}/lambda-files"
+      files_to_inject = merge(
+        local.semper_policies_map,
+        {
+          "README.md" : "Override README.md"
+          "sub-folder/test.json" = <<-EOT
+{
+    "accountId": "${data.aws_caller_identity.current.account_id}",
+    "accountName": "acai_testbed-lab1_wl2",
+    "accountStatus": "ACTIVE"
+}
+EOT
+        }
+      )
     }
   }
   execution_iam_role_settings = {
-    new_iam_role = {
-      permission_policy_json_list = [
-        data.aws_iam_policy_document.lambda_permission.json
-      ]
-    }
+    new_iam_role = {}
   }
   #worker_is_windows = true
   resource_tags = var.resource_tags
 }
 
-resource "aws_lambda_invocation" "use_case_1_lambda" {
-  function_name = module.use_case_1_lambda.lambda.name
+resource "aws_lambda_invocation" "use_case_5_lambda" {
+  function_name = module.use_case_5_lambda.lambda.name
 
   input = <<JSON
 {
 }
 JSON
   depends_on = [
-    module.use_case_1_lambda
+    module.use_case_5_lambda
   ]
 }

@@ -442,6 +442,57 @@ module "use_case_4_lambda" {
 }
 ```
 
+### Use-Case 5
+
+This Lambda will inject several files with data rendered at runtime into the Lambda Package.
+
+Location: [`./examples/use-case-5`](./examples/use-case-5/)
+
+``` hcl
+locals {
+  file_paths = fileset("${path.module}/semper-policies/", "**/*.json")
+  semper_policies_map = {
+    for file in local.file_paths :
+    "semper-policies/${file}" => file("${path.module}/semper-policies/${file}")
+  }
+}
+
+module "use_case_5_lambda" {
+  #checkov:skip=CKV_AWS_50
+  source = "../../"
+
+  lambda_settings = {
+    function_name = "${var.function_name}_5"
+    description   = "This sample will inject the content of a 'local' folder into the Lambda package"
+    handler       = "main.lambda_handler"
+    config = {
+      runtime = "python3.12"
+    }
+    package = {
+      source_path = "${path.module}/lambda-files"
+      files_to_inject = merge(
+        local.semper_policies_map,
+        { 
+          "README.md" : "Override README.md" 
+          "sub-folder/test.json" = <<-EOT
+{
+    "accountId": "${data.aws_caller_identity.current.account_id}",
+    "accountName": "acai_testbed-lab1_wl2",
+    "accountStatus": "ACTIVE"
+}
+EOT
+        }
+      )
+    }
+  }
+  execution_iam_role_settings = {
+    new_iam_role = {}
+  }
+  #worker_is_windows = true
+  resource_tags = var.resource_tags
+}
+```
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 

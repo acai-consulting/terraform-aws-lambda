@@ -85,6 +85,16 @@ variable "lambda_settings" {
   }
 
   validation {
+    condition = var.lambda_settings.package.files_to_inject == null ? true : (
+      length(var.lambda_settings.package.files_to_inject) == 0 ||
+      alltrue([
+        for file_path in keys(var.lambda_settings.package.files_to_inject) :
+        !startswith(file_path, "/")
+      ])
+    )
+    error_message = "When provided, the keys in files_to_inject must not start with '/'."
+  }
+  validation {
     condition     = var.lambda_settings.tracing_mode == null ? true : contains(["Active", "PassThrough"], var.lambda_settings.tracing_mode)
     error_message = "Invalid tracing_mode value."
   }
@@ -93,7 +103,6 @@ variable "lambda_settings" {
     condition     = var.lambda_settings.file_system_config == null || can(regex("^arn:aws:elasticfilesystem:", var.lambda_settings.file_system_config.arn))
     error_message = "File system config ARN must start with 'arn:aws:elasticfilesystem:'."
   }
-
 
   validation {
     condition     = var.lambda_settings.package.type != "Image" || (var.lambda_settings.image_config != null && var.lambda_settings.image_config != null ? var.lambda_settings.image_config.image_uri != "" : true)
