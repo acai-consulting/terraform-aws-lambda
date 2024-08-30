@@ -85,19 +85,15 @@ variable "lambda_settings" {
   }
 
   validation {
-    condition = (
-      var.lambda_settings.package.files_to_inject == null ||
-      (
-        length(var.lambda_settings.package.files_to_inject) == 0 ||
-        alltrue([
-          for file_path in keys(var.lambda_settings.package.files_to_inject) :
-          !startswith(file_path, "/")
-        ])
-      )
+    condition = var.lambda_settings.package.files_to_inject == null ? true : (
+      length(var.lambda_settings.package.files_to_inject) == 0 || 
+      alltrue([
+        for file_path in keys(var.lambda_settings.package.files_to_inject) : 
+        !startswith(file_path, "/")
+      ])
     )
-    error_message = "The keys in files_to_inject must not start with '/'."
+    error_message = "When provided, the keys in files_to_inject must not start with '/'."
   }
-
   validation {
     condition     = var.lambda_settings.tracing_mode == null ? true : contains(["Active", "PassThrough"], var.lambda_settings.tracing_mode)
     error_message = "Invalid tracing_mode value."
