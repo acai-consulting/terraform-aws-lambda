@@ -13,6 +13,11 @@ terraform {
   }
 }
 
+# ---------------------------------------------------------------------------------------------------------------------
+# ¦ DATA
+# ---------------------------------------------------------------------------------------------------------------------
+data "aws_caller_identity" "current" {}
+
 
 # ---------------------------------------------------------------------------------------------------------------------
 # ¦ USE_CASE_5_LAMBDA
@@ -44,11 +49,10 @@ module "use_case_5_lambda" {
           "README.md" : "Override README.md" 
           "sub-folder/test.json" = <<-EOT
 {
-    "accountId": "471112796356",
+    "accountId": "${data.aws_caller_identity.current.account_id}",
     "accountName": "acai_testbed-lab1_wl2",
     "accountStatus": "ACTIVE"
 }
-```
 EOT
         }
       )
