@@ -47,18 +47,6 @@ module "use_case_1_lambda" {
     }
     package = {
       source_path = "${path.module}/lambda-files"
-      files_to_inject = {
-        "sub-folder/test.txt" = <<-EOT
-hello2
-```python
-account_context = {
-    "accountId": "471112796356",
-    "accountName": "acai_testbed-lab1_wl2",
-    "accountStatus": "ACTIVE"
-}
-```
-EOT
-      }
     }
   }
   execution_iam_role_settings = {
@@ -82,41 +70,4 @@ JSON
   depends_on = [
     module.use_case_1_lambda
   ]
-}
-
-# ---------------------------------------------------------------------------------------------------------------------
-# ¦ USE_CASE_1_1_LAMBDA
-# ---------------------------------------------------------------------------------------------------------------------
-locals {
-  file_paths = fileset("${path.module}/semper-policies/", "**/*.json")
-  semper_policies_map = {
-    for file in local.file_paths :
-    "semper-policies/${file}" => file("${path.module}/semper-policies/${file}")
-  }
-}
-
-module "use_case_1_2_lambda" {
-  #checkov:skip=CKV_AWS_50
-  source = "../../"
-
-  lambda_settings = {
-    function_name = "${var.function_name}_2"
-    description   = "This sample will inject the content of a 'local' folder into the Lambda package"
-    handler       = "main.lambda_handler"
-    config = {
-      runtime = "python3.10"
-    }
-    package = {
-      source_path = "${path.module}/lambda-files"
-      files_to_inject = merge(
-        local.semper_policies_map,
-        { "README.md" : "Override README.md" }
-      )
-    }
-  }
-  execution_iam_role_settings = {
-    new_iam_role = {}
-  }
-  #worker_is_windows = true
-  resource_tags = var.resource_tags
 }

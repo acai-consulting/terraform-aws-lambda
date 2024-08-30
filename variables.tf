@@ -83,6 +83,16 @@ variable "lambda_settings" {
     condition     = contains(["Zip", "Image"], var.lambda_settings.package.type)
     error_message = "Invalid package type. Must be either 'Zip' or 'Image'."
   }
+  
+  validation {
+    condition = var.lambda_settings.package.files_to_inject == null || (
+      alltrue([
+        for file_path in keys(var.lambda_settings.package.files_to_inject) :
+        !startswith(file_path, "/")
+      ])
+    )
+    error_message = "The keys in files_to_inject must not start with '/'."
+  }
 
   validation {
     condition     = var.lambda_settings.tracing_mode == null ? true : contains(["Active", "PassThrough"], var.lambda_settings.tracing_mode)
