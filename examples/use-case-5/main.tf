@@ -39,7 +39,7 @@ module "use_case_5_lambda" {
     description   = "This sample will inject the content of a 'local' folder into the Lambda package"
     handler       = "main.lambda_handler"
     config = {
-      runtime = "python3.12"
+      runtime = "python3.11"
     }
     package = {
       source_path = "${path.module}/lambda-files"
