@@ -85,13 +85,13 @@ variable "lambda_settings" {
   }
 
   validation {
-    condition = var.lambda_settings.package.files_to_inject == null || (
+    condition = var.lambda_settings.package.files_to_inject == null || length(var.lambda_settings.package.files_to_inject) == 0 || (
       alltrue([
         for file_path in keys(var.lambda_settings.package.files_to_inject) :
         !startswith(file_path, "/")
       ])
     )
-    error_message = "The keys in files_to_inject must not start with '/'."
+    error_message = "The keys in files_to_inject must not start with '/' and must not be empty unless null."
   }
 
   validation {
