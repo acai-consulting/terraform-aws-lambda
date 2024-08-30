@@ -41,6 +41,9 @@ module "use_case_5_lambda" {
     config = {
       runtime = "python3.10"
     }
+    environment_variables = {
+      ACCOUNT_ID = data.aws_caller_identity.current.account_id
+    }
     package = {
       source_path = "${path.module}/lambda-files"
       files_to_inject = merge(
