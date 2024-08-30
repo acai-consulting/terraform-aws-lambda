@@ -86,9 +86,9 @@ variable "lambda_settings" {
 
   validation {
     condition = var.lambda_settings.package.files_to_inject == null ? true : (
-      length(var.lambda_settings.package.files_to_inject) == 0 || 
+      length(var.lambda_settings.package.files_to_inject) == 0 ||
       alltrue([
-        for file_path in keys(var.lambda_settings.package.files_to_inject) : 
+        for file_path in keys(var.lambda_settings.package.files_to_inject) :
         !startswith(file_path, "/")
       ])
     )
