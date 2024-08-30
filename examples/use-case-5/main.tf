@@ -45,8 +45,8 @@ module "use_case_5_lambda" {
       source_path = "${path.module}/lambda-files"
       files_to_inject = merge(
         local.semper_policies_map,
-        { 
-          "README.md" : "Override README.md" 
+        {
+          "README.md" : "Override README.md"
           "sub-folder/test.json" = <<-EOT
 {
     "accountId": "${data.aws_caller_identity.current.account_id}",

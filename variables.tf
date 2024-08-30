@@ -83,7 +83,7 @@ variable "lambda_settings" {
     condition     = contains(["Zip", "Image"], var.lambda_settings.package.type)
     error_message = "Invalid package type. Must be either 'Zip' or 'Image'."
   }
-  
+
   validation {
     condition = var.lambda_settings.package.files_to_inject == null || (
       alltrue([
