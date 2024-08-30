@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.7](https://github.com/acai-consulting/terraform-aws-lambda/compare/1.3.6...1.3.7) (2024-08-30)
+
+
+### Bug Fixes
+
+* add validation and 5th use-case for files_to_inject ([c816ec9](https://github.com/acai-consulting/terraform-aws-lambda/commit/c816ec9b48852cb46b77500126a7d6c4039faf87))
+
 ## [1.3.6](https://github.com/acai-consulting/terraform-aws-lambda/compare/1.3.5...1.3.6) (2024-07-05)
 
 
