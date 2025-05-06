@@ -40,6 +40,7 @@ No modules.
 | <a name="input_dead_letter_target_arn"></a> [dead\_letter\_target\_arn](#input\_dead\_letter\_target\_arn) | ARN to optional Dead Letter Target. | `string` | `null` | no |
 | <a name="input_existing_kms_cmk_arn"></a> [existing\_kms\_cmk\_arn](#input\_existing\_kms\_cmk\_arn) | KMS key ARN to be used to encrypt logs and sqs messages. | `string` | `null` | no |
 | <a name="input_resource_tags"></a> [resource\_tags](#input\_resource\_tags) | A map of tags to assign to the resources. | `map(string)` | `{}` | no |
+| <a name="input_vpc_subnet_ids"></a> [vpc\_subnet\_ids](#input\_vpc\_subnet\_ids) | List of subnet IDs the Lambda is allowed to create network interfaces in | `list(string)` | `[]` | no |
 
 ## Outputs
 
