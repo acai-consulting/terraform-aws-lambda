@@ -35,6 +35,11 @@ variable "dead_letter_target_arn" {
   default     = null
 }
 
+variable "vpc_subnet_ids" {
+  description = "List of subnet IDs the Lambda is allowed to create network interfaces in"
+  type        = list(string)
+  default     = []
+}
 
 variable "resource_tags" {
   description = "A map of tags to assign to the resources."
