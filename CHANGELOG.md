@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.8](https://github.com/acai-consulting/terraform-aws-lambda/compare/1.3.7...1.3.8) (2025-05-06)
+
+
+### Bug Fixes
+
+* add permissions for VPC ([#25](https://github.com/acai-consulting/terraform-aws-lambda/issues/25)) ([75c8d9c](https://github.com/acai-consulting/terraform-aws-lambda/commit/75c8d9c1676e358bbec497cffe717dff70ad8558))
+
 ## [1.3.7](https://github.com/acai-consulting/terraform-aws-lambda/compare/1.3.6...1.3.7) (2024-08-30)
 
 
