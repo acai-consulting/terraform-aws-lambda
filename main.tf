@@ -221,6 +221,7 @@ module "lambda_execution_iam_role" {
     lambda_name   = var.lambda_settings.function_name
     loggroup_name = local.loggroup_name
   }
+  vpc_subnet_ids = var.lambda_settings.vpc_config != null ? var.lambda_settings.vpc_config.subnet_ids : []
   resource_tags = local.resource_tags
 }
 

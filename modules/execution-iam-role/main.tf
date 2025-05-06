@@ -108,6 +108,27 @@ data "aws_iam_policy_document" "lambda_context" {
       resources = [var.dead_letter_target_arn]
     }
   }
+  dynamic "statement" {
+    for_each = var.vpc_subnet_ids != [] ? [1] : []
+    content {
+      sid    = "AllowVpcActions"
+      effect = "Allow"
+      actions = [
+        "ec2:CreateNetworkInterface",
+        "ec2:DescribeNetworkInterfaces",
+        "ec2:DescribeSubnets",
+        "ec2:DeleteNetworkInterface",
+        "ec2:AssignPrivateIpAddresses",
+        "ec2:UnassignPrivateIpAddresses"
+      ]
+      resources = ["*"]
+      condition {
+        test     = "StringEquals"
+        variable = "ec2:Subnet"
+        values   = var.vpc_subnet_ids
+      }
+    }
+  }
 }
 
 
