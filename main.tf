@@ -222,7 +222,7 @@ module "lambda_execution_iam_role" {
     loggroup_name = local.loggroup_name
   }
   vpc_subnet_ids = var.lambda_settings.vpc_config != null ? var.lambda_settings.vpc_config.subnet_ids : []
-  resource_tags = local.resource_tags
+  resource_tags  = local.resource_tags
 }
 
 resource "aws_iam_role_policy_attachment" "aws_xray_write_only_access" {
