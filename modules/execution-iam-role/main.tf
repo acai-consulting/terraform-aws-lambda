@@ -36,7 +36,7 @@ locals {
   ) : ""
 
   new_execution_iam_role = var.execution_iam_role_settings.new_iam_role
-  policy_name_suffix     = local.create_new_execution_iam_role ? format("For%s-%s", replace(title(replace(replace(var.runtime_configuration.lambda_name, "-", " "), "_", " ")), " ", ""), var.runtime_configuration.region_short) : ""
+  policy_name_suffix     = format("For%s-%s", replace(title(replace(replace(var.runtime_configuration.lambda_name, "-", " "), "_", " ")), " ", ""), var.runtime_configuration.region_short)
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
