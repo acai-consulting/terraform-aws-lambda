@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.9](https://github.com/acai-consulting/terraform-aws-lambda/compare/1.3.8...1.3.9) (2025-05-20)
+
+
+### Bug Fixes
+
+* iam policy-name - remove inline check for suffix ([#26](https://github.com/acai-consulting/terraform-aws-lambda/issues/26)) ([3e44a3b](https://github.com/acai-consulting/terraform-aws-lambda/commit/3e44a3b4be0ea4d8840f9c380ed2626c45988624))
+
 ## [1.3.8](https://github.com/acai-consulting/terraform-aws-lambda/compare/1.3.7...1.3.8) (2025-05-06)
 
 
