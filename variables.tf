@@ -204,7 +204,8 @@ variable "execution_iam_role_settings" {
       permission_policy_arn_list  = optional(list(string), [])
       permission_policy_json_list = optional(list(string), [])
     }), null)
-    existing_iam_role_name = optional(string, null)
+    existing_iam_role_name               = optional(string, null)
+    permissions_fully_externally_managed = optional(bool, false)
   })
   default = {
     new_iam_role = {
@@ -212,6 +213,7 @@ variable "execution_iam_role_settings" {
       permission_policy_arn_list  = []
       permission_policy_json_list = []
     }
+    permissions_fully_externally_managed = false
   }
   validation {
     condition = (
