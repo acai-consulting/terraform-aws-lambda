@@ -21,7 +21,7 @@
 <!-- ARCHITECTURE -->
 ## Architecture
 
-![architecture](https://raw.githubusercontent.com/acai-consulting/terraform-aws-lambda/main/docs/terraform-aws-lambda.svg)
+![architecture][architecture-png]
 
 <!-- FEATURES -->
 ## Features
@@ -576,3 +576,4 @@ See [LICENSE][license-url] for full details.
 [license-url]: ./LICENSE
 [terraform-url]: https://www.terraform.io
 [aws-url]: https://aws.amazon.com
+[architecture-png]: ./docs/terraform-aws-lambda.png
