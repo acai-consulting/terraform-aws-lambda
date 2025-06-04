@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.10](https://github.com/acai-consulting/terraform-aws-lambda/compare/1.3.9...1.3.10) (2025-06-04)
+
+
+### Bug Fixes
+
+* add execution_iam_role_settings.permissions_fully_externally_managed ([#27](https://github.com/acai-consulting/terraform-aws-lambda/issues/27)) ([fbf154e](https://github.com/acai-consulting/terraform-aws-lambda/commit/fbf154ec136ec28bf51734840393e4a975aa1164))
+
 ## [1.3.9](https://github.com/acai-consulting/terraform-aws-lambda/compare/1.3.8...1.3.9) (2025-05-20)
 
 
