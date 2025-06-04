@@ -70,13 +70,9 @@ data "aws_iam_policy_document" "execution_role_trust" {
 # ---------------------------------------------------------------------------------------------------------------------
 # ¦ ATTACH IAM POLICIES
 # ---------------------------------------------------------------------------------------------------------------------
-resource "aws_iam_role_policy_attachment" "execution_role" {
-  count      = local.create_new_execution_iam_role ? length(var.execution_iam_role_settings.new_iam_role.permission_policy_arn_list) : 0
-  role       = aws_iam_role.execution_role[0].name
-  policy_arn = local.new_execution_iam_role.permission_policy_arn_list[count.index]
-}
-
 resource "aws_iam_role_policy" "lambda_context" {
+  count = var.execution_iam_role_settings.permissions_fully_externally_managed ? 0 : 1
+
   name   = "AllowLambdaContext${local.policy_name_suffix}"
   role   = local.create_new_execution_iam_role ? aws_iam_role.execution_role[0].name : data.aws_iam_role.existing_execution_iam_role[0].name
   policy = data.aws_iam_policy_document.lambda_context.json
@@ -109,7 +105,7 @@ data "aws_iam_policy_document" "lambda_context" {
     }
   }
   dynamic "statement" {
-    for_each = var.vpc_subnet_ids != [] ? [1] : []
+    for_each = length(var.vpc_subnet_ids) > 0 ? [1] : []
     content {
       sid    = "AllowVpcActions"
       effect = "Allow"
@@ -131,9 +127,14 @@ data "aws_iam_policy_document" "lambda_context" {
   }
 }
 
+resource "aws_iam_role_policy_attachment" "execution_role" {
+  count      = local.create_new_execution_iam_role && !var.execution_iam_role_settings.permissions_fully_externally_managed ? length(var.execution_iam_role_settings.new_iam_role.permission_policy_arn_list) : 0
+  role       = aws_iam_role.execution_role[0].name
+  policy_arn = local.new_execution_iam_role.permission_policy_arn_list[count.index]
+}
 
 resource "aws_iam_role_policy" "new_lambda_permission_policies" {
-  count = local.create_new_execution_iam_role ? (
+  count = local.create_new_execution_iam_role && !var.execution_iam_role_settings.permissions_fully_externally_managed ? (
     length(local.new_execution_iam_role.permission_policy_json_list) > 0 ? 1 : 0
   ) : 0
 
