@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.12](https://github.com/acai-consulting/terraform-aws-lambda/compare/1.3.11...1.3.12) (2025-06-16)
+
+
+### Bug Fixes
+
+* add sqs url ([#30](https://github.com/acai-consulting/terraform-aws-lambda/issues/30)) ([dbf599a](https://github.com/acai-consulting/terraform-aws-lambda/commit/dbf599a3d97555ff387d2e2c8ff100763e5c169f))
+
 ## [1.3.11](https://github.com/acai-consulting/terraform-aws-lambda/compare/1.3.10...1.3.11) (2025-06-04)
 
 
