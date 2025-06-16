@@ -3,6 +3,12 @@ output "trigger_sqs_arn" {
   value       = var.trigger_settings.sqs != null ? aws_sqs_queue.lambda_trigger[0].arn : null
 }
 
+output "trigger_sqs_url" {
+  description = "The URL of the SQS queue configured as a trigger for the Lambda function."
+  value       = var.trigger_settings.sqs != null ? aws_sqs_queue.lambda_trigger[0].url : null
+}
+
+
 output "scheduler_arn" {
   description = "The ARN of the CloudWatch event rule for schedule."
   value       = var.trigger_settings.schedule_expression != null ? aws_cloudwatch_event_rule.schedule[0].arn : null
