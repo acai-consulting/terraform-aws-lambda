@@ -33,7 +33,7 @@ locals {
       "module_lambda_provider" = "ACAI GmbH",
       "module_lambda_origin"   = "terraform registry",
       "module_lambda_source"   = "acai-consulting/lambda/aws",
-      "module_lambda_version"  = /*inject_version_start*/ "1.3.14" /*inject_version_end*/
+      "module_lambda_version"  = /*inject_version_start*/ "1.3.15" /*inject_version_end*/
     },
     can(var.resource_tags["module_stack"]) ? {
       "module_stack" = "${var.resource_tags["module_stack"]}/lambda"
