@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.14](https://github.com/acai-consulting/terraform-aws-lambda/compare/1.3.13...1.3.14) (2025-06-26)
+
+
+### Bug Fixes
+
+* versioning ([#33](https://github.com/acai-consulting/terraform-aws-lambda/issues/33)) ([12b9d80](https://github.com/acai-consulting/terraform-aws-lambda/commit/12b9d805a89f982e70e15442ac2a432912a5600b))
+
 ## [1.3.13](https://github.com/acai-consulting/terraform-aws-lambda/compare/1.3.12...1.3.13) (2025-06-26)
 
 
