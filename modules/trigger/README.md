@@ -49,4 +49,5 @@ No modules.
 | <a name="output_cloudwatch_event_rule_arns"></a> [cloudwatch\_event\_rule\_arns](#output\_cloudwatch\_event\_rule\_arns) | ARNs of the created CloudWatch event rules. |
 | <a name="output_scheduler_arn"></a> [scheduler\_arn](#output\_scheduler\_arn) | The ARN of the CloudWatch event rule for schedule. |
 | <a name="output_trigger_sqs_arn"></a> [trigger\_sqs\_arn](#output\_trigger\_sqs\_arn) | The ARN of the SQS queue configured as a trigger for the Lambda function. |
+| <a name="output_trigger_sqs_url"></a> [trigger\_sqs\_url](#output\_trigger\_sqs\_url) | The URL of the SQS queue configured as a trigger for the Lambda function. |
 <!-- END_TF_DOCS -->
