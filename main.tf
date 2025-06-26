@@ -78,7 +78,7 @@ data "archive_file" "lambda_package" {
     filename = "README.md"
     content  = "Add your readme here."
   }
-  output_path = "${path.module}/${local.region_name_short}_zipped_package.zip"
+  output_path = "${path.module}/${var.lambda_settings.function_name}_${local.region_name_short}_zipped_package.zip"
 }
 
 #tfsec:ignore:avd-aws-0066 Lambda functions should have X-Ray tracing enabled
