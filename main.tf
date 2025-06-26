@@ -37,7 +37,7 @@ locals {
     },
     can(var.resource_tags["module_stack"]) ? {
       "module_stack" = "${var.resource_tags["module_stack"]}/lambda"
-    } : {
+      } : {
       "module_stack" = "lambda"
     }
   )
