@@ -41,11 +41,11 @@ locals {
       "module_stack" = "lambda"
     }
   )
-  region_name_length = length(data.aws_region.this.name)
+  region_name_length = length(data.aws_region.this.region)
   region_name_short = format("%s%s%s",
-    substr(data.aws_region.this.name, 0, 2),
-    substr(data.aws_region.this.name, 3, 1),
-    substr(data.aws_region.this.name, local.region_name_length - 1, 1)
+    substr(data.aws_region.this.region, 0, 2),
+    substr(data.aws_region.this.region, 3, 1),
+    substr(data.aws_region.this.region, local.region_name_length - 1, 1)
   )
   loggroup_name = "/aws/lambda/${var.lambda_settings.function_name}"
 }
@@ -175,7 +175,7 @@ resource "aws_lambda_permission" "allow_lambda_logs" {
 
   action         = "lambda:InvokeFunction"
   function_name  = var.lambda_settings.error_handling.central_collector.target_name
-  principal      = "logs.${data.aws_region.this.name}.amazonaws.com"
+  principal      = "logs.${data.aws_region.this.region}.amazonaws.com"
   source_arn     = "${aws_cloudwatch_log_group.lambda_logs.arn}:*"
   source_account = data.aws_caller_identity.this.account_id
 }
@@ -220,7 +220,7 @@ module "lambda_execution_iam_role" {
   dead_letter_target_arn      = var.lambda_settings.error_handling != null ? (var.lambda_settings.error_handling.dead_letter_config != null ? var.lambda_settings.dead_letter_config.target_arn : null) : null
   runtime_configuration = {
     account_id    = data.aws_caller_identity.this.account_id
-    region_name   = data.aws_region.this.name
+    region_name   = data.aws_region.this.region
     region_short  = local.region_name_short
     lambda_name   = var.lambda_settings.function_name
     loggroup_name = local.loggroup_name
