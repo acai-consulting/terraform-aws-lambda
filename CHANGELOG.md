@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.16](https://github.com/acai-consulting/terraform-aws-lambda/compare/1.3.15...1.3.16) (2025-07-26)
+
+
+### Bug Fixes
+
+* change data.aws_region.this.name to data.aws_region.this.region ([#35](https://github.com/acai-consulting/terraform-aws-lambda/issues/35)) ([65b8c37](https://github.com/acai-consulting/terraform-aws-lambda/commit/65b8c37d363b5e085089a7cfbedf0cd3d291139a))
+
 ## [1.3.15](https://github.com/acai-consulting/terraform-aws-lambda/compare/1.3.14...1.3.15) (2025-06-26)
 
 
