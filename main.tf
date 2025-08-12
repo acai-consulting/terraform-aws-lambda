@@ -177,7 +177,7 @@ resource "aws_lambda_permission" "allow_lambda_logs" {
   action         = "lambda:InvokeFunction"
   function_name  = var.lambda_settings.error_handling.central_collector.target_name
   principal      = "logs.${data.aws_region.this.id}.amazonaws.com"
-  source_arn     = "arn:${data.aws_partition.this.name}:logs:${data.aws_region.this.id}:${data.aws_caller_identity.this.account_id}:log-group:${local.loggroup_name}:*"
+  source_arn     = "arn:${data.aws_partition.this.id}:logs:${data.aws_region.this.id}:${data.aws_caller_identity.this.account_id}:log-group:${local.loggroup_name}:*"
   source_account = data.aws_caller_identity.this.account_id
   depends_on = [ aws_cloudwatch_log_group.lambda_logs ]
 }
@@ -204,7 +204,7 @@ module "lambda_trigger" {
   runtime_configuration = {
     account_id     = data.aws_caller_identity.this.account_id
     lambda_name    = aws_lambda_function.this.function_name
-    lambda_arn     = "arn:${data.aws_partition.this.name}:lambda:${data.aws_region.this.id}:${data.aws_caller_identity.this.account_id}:function:${var.lambda_settings.function_name}"
+    lambda_arn     = "arn:${data.aws_partition.this.id}:lambda:${data.aws_region.this.id}:${data.aws_caller_identity.this.account_id}:function:${var.lambda_settings.function_name}"
     lambda_timeout = aws_lambda_function.this.timeout
   }
   resource_tags = local.resource_tags
