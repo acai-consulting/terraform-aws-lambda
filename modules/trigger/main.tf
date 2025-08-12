@@ -17,8 +17,17 @@ terraform {
 # ¦ LOCALS
 # ---------------------------------------------------------------------------------------------------------------------
 locals {
+  account_arn             = format("arn:aws:iam::%s:root", var.runtime_configuration.account_id)
   trigger_sqs_name        = "${var.runtime_configuration.lambda_name}-trigger"
   schedule_eventrule_name = "${var.runtime_configuration.lambda_name}-schedule"
+  # to avoid unnecessary Terraform plan changes, we try to avoid iam_policy_document if possible
+  trigger_sqs_iam_policy_document = (
+    var.trigger_settings.sqs != null &&
+    (
+      length(try(var.trigger_settings.sqs.access_policy_json_list, [])) > 0 ||
+      length(try(var.trigger_settings.sqs.management_permissions, [])) > 0
+    )
+  )
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -51,15 +60,45 @@ resource "aws_sqs_queue_policy" "lambda_trigger" {
   count = var.trigger_settings.sqs != null ? 1 : 0
 
   queue_url = aws_sqs_queue.lambda_trigger[0].id
-  policy    = data.aws_iam_policy_document.lambda_trigger_policy[0].json
+  policy = length(var.trigger_settings.sqs.access_policy_json_list) > 0 || length(var.trigger_settings.sqs.management_permissions) > 0 ? data.aws_iam_policy_document.lambda_trigger_policy[0].json : jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : flatten([
+      {
+        "Sid" : "ManagementPermissions",
+        "Effect" : "Allow",
+        "Action" : "sqs:*",
+        "Resource" : "*",
+        "Principal" : {
+          "AWS" : local.account_arn
+        }
+      },
+      length(var.trigger_settings.sqs.inbound_sns_topics) != 0 ? [{
+        "Sid" : "AllowInboundSns",
+        "Effect" : "Allow",
+        "Action" : "sqs:SendMessage",
+        "Principal" : {
+          "Service" : "sns.amazonaws.com"
+        },
+        "Resource" : "*",
+        "Condition" : {
+          "ArnLike" : {
+            "aws:SourceArn" : [
+              for item in var.trigger_settings.sqs.inbound_sns_topics : item.sns_arn
+            ]
+          }
+        }
+      }] : []
+    ])
+  })
 }
+
 
 #tfsec:ignore:AVD-AWS-0097
 data "aws_iam_policy_document" "lambda_trigger_policy" {
   #checkov:skip=CKV_AWS_109 : Resource base policy
   #checkov:skip=CKV_AWS_111 : Resource base policy
   #checkov:skip=CKV_AWS_356 : Allow "sqs:*" for account principals
-  count = var.trigger_settings.sqs != null ? 1 : 0
+  count = local.trigger_sqs_iam_policy_document ? 1 : 0
 
   source_policy_documents   = var.trigger_settings.sqs.access_policy_json_list
   override_policy_documents = var.trigger_settings.sqs.management_permissions
@@ -69,7 +108,7 @@ data "aws_iam_policy_document" "lambda_trigger_policy" {
     effect  = "Allow"
     principals {
       type        = "AWS"
-      identifiers = [format("arn:aws:iam::%s:root", var.runtime_configuration.account_id)]
+      identifiers = [local.account_arn]
     }
     resources = ["*"]
   }

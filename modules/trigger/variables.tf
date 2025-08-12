@@ -1,13 +1,13 @@
 variable "trigger_settings" {
   type = object({
-    trigger_permissions = optional(list(object({
+    trigger_permissions = list(object({
       principal      = string
       source_arn     = string
       source_account = string
-    })), null)
+    }))
     sqs = optional(object({
       management_permissions  = list(string)
-      access_policy_json_list = optional(list(string), [])
+      access_policy_json_list = list(string)
       inbound_sns_topics = optional(list(object(
         {
           sns_arn            = string
@@ -16,12 +16,12 @@ variable "trigger_settings" {
       )), [])
     }), null)
     schedule_expression = string
-    event_rules = optional(list(object({
+    event_rules = list(object({
       name           = string
       description    = string
       event_bus_name = string
       event_pattern  = string
-    })), null)
+    }))
   })
 }
 
