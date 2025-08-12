@@ -21,7 +21,13 @@ locals {
   trigger_sqs_name        = "${var.runtime_configuration.lambda_name}-trigger"
   schedule_eventrule_name = "${var.runtime_configuration.lambda_name}-schedule"
   # to avoid unnecessary Terraform plan changes, we try to avoid iam_policy_document if possible
-  trigger_sqs_iam_policy_document = var.trigger_settings.sqs != null && (length(var.trigger_settings.sqs.access_policy_json_list) > 0 || length(var.trigger_settings.sqs.management_permissions) > 0)
+  trigger_sqs_iam_policy_document = (
+    var.trigger_settings.sqs != null &&
+    (
+      length(try(var.trigger_settings.sqs.access_policy_json_list, [])) > 0 ||
+      length(try(var.trigger_settings.sqs.management_permissions, [])) > 0
+    )
+  )
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
