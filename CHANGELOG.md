@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.18](https://github.com/acai-consulting/terraform-aws-lambda/compare/1.3.17...1.3.18) (2025-08-12)
+
+
+### Bug Fixes
+
+* adjust trigger_sqs_iam_policy_document ([#37](https://github.com/acai-consulting/terraform-aws-lambda/issues/37)) ([0ccf82b](https://github.com/acai-consulting/terraform-aws-lambda/commit/0ccf82baf2164747d822d3aa63e3f63286fa436d))
+
 ## [1.3.17](https://github.com/acai-consulting/terraform-aws-lambda/compare/1.3.16...1.3.17) (2025-08-12)
 
 
