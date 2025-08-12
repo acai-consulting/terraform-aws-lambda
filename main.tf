@@ -179,7 +179,7 @@ resource "aws_lambda_permission" "allow_lambda_logs" {
   principal      = "logs.${data.aws_region.this.id}.amazonaws.com"
   source_arn     = "arn:${data.aws_partition.this.id}:logs:${data.aws_region.this.id}:${data.aws_caller_identity.this.account_id}:log-group:${local.loggroup_name}:*"
   source_account = data.aws_caller_identity.this.account_id
-  depends_on = [ aws_cloudwatch_log_group.lambda_logs ]
+  depends_on     = [aws_cloudwatch_log_group.lambda_logs]
 }
 
 resource "aws_cloudwatch_log_subscription_filter" "lambda_logs_forwarding" {
