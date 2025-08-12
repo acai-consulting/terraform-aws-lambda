@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.17](https://github.com/acai-consulting/terraform-aws-lambda/compare/1.3.16...1.3.17) (2025-08-12)
+
+
+### Bug Fixes
+
+* resource.arn to string, substitute aws_iam_policy_document where possible ([#36](https://github.com/acai-consulting/terraform-aws-lambda/issues/36)) ([b906d67](https://github.com/acai-consulting/terraform-aws-lambda/commit/b906d673efe094ccbc7e4c3c496b7124386b3bdf))
+
 ## [1.3.16](https://github.com/acai-consulting/terraform-aws-lambda/compare/1.3.15...1.3.16) (2025-07-26)
 
 
