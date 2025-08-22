@@ -37,6 +37,18 @@ locals {
 
   new_execution_iam_role = var.execution_iam_role_settings.new_iam_role
   policy_name_suffix     = format("For%s-%s", replace(title(replace(replace(var.runtime_configuration.lambda_name, "-", " "), "_", " ")), " ", ""), var.runtime_configuration.region_short)
+
+  execution_iam_role_name = local.create_new_execution_iam_role ? (
+    local.new_execution_iam_role_name
+    ) : (
+    data.aws_iam_role.existing_execution_iam_role[0].name
+  )
+
+  execution_iam_role_arn = local.create_new_execution_iam_role ? (
+    replace("arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${trim(local.new_execution_iam_role.path, "/")}/${local.new_execution_iam_role_name}", "////", "/")
+    ) : (
+    data.aws_iam_role.existing_execution_iam_role[0].arn
+  )
 }
 
 # ---------------------------------------------------------------------------------------------------------------------

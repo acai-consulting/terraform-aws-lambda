@@ -20,9 +20,9 @@ terraform {
 # ---------------------------------------------------------------------------------------------------------------------
 # ¦ DATA
 # ---------------------------------------------------------------------------------------------------------------------
-data "aws_caller_identity" "this" {}
-data "aws_region" "this" {}
-data "aws_partition" "this" {}
+data "aws_caller_identity" "current" {}
+data "aws_region" "current" {}
+data "aws_partition" "current" {}
 
 # ---------------------------------------------------------------------------------------------------------------------
 # ¦ LOCALS
@@ -34,7 +34,7 @@ locals {
       "module_lambda_provider" = "ACAI GmbH",
       "module_lambda_origin"   = "terraform registry",
       "module_lambda_source"   = "acai-consulting/lambda/aws",
-      "module_lambda_version"  = /*inject_version_start*/ "1.3.18" /*inject_version_end*/
+      "module_lambda_version"  = /*inject_version_start*/ "1.3.19" /*inject_version_end*/
     },
     can(var.resource_tags["module_stack"]) ? {
       "module_stack" = "${var.resource_tags["module_stack"]}/lambda"
@@ -42,11 +42,11 @@ locals {
       "module_stack" = "lambda"
     }
   )
-  region_name_length = length(data.aws_region.this.id)
+  region_name_length = length(data.aws_region.current.id)
   region_name_short = format("%s%s%s",
-    substr(data.aws_region.this.id, 0, 2),
-    substr(data.aws_region.this.id, 3, 1),
-    substr(data.aws_region.this.id, local.region_name_length - 1, 1)
+    substr(data.aws_region.current.id, 0, 2),
+    substr(data.aws_region.current.id, 3, 1),
+    substr(data.aws_region.current.id, local.region_name_length - 1, 1)
   )
   loggroup_name = "/aws/lambda/${var.lambda_settings.function_name}"
 }
@@ -88,7 +88,7 @@ resource "aws_lambda_function" "this" {
   function_name = var.lambda_settings.function_name
   description   = var.lambda_settings.description
   layers        = var.lambda_settings.layer_names == null ? var.lambda_settings.layer_arn_list : var.lambda_settings.layer_names
-  role          = "arn:aws:iam::${data.aws_caller_identity.this.account_id}:role/${module.lambda_execution_iam_role.name}"
+  role          = module.lambda_execution_iam_role.arn
   handler       = var.lambda_settings.handler
 
   runtime       = var.lambda_settings.config.runtime
@@ -176,9 +176,9 @@ resource "aws_lambda_permission" "allow_lambda_logs" {
 
   action         = "lambda:InvokeFunction"
   function_name  = var.lambda_settings.error_handling.central_collector.target_name
-  principal      = "logs.${data.aws_region.this.id}.amazonaws.com"
-  source_arn     = "arn:${data.aws_partition.this.id}:logs:${data.aws_region.this.id}:${data.aws_caller_identity.this.account_id}:log-group:${local.loggroup_name}:*"
-  source_account = data.aws_caller_identity.this.account_id
+  principal      = "logs.${data.aws_region.current.id}.amazonaws.com"
+  source_arn     = "arn:${data.aws_partition.current.id}:logs:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:log-group:${local.loggroup_name}:*"
+  source_account = data.aws_caller_identity.current.account_id
   depends_on     = [aws_cloudwatch_log_group.lambda_logs]
 }
 
@@ -202,9 +202,9 @@ module "lambda_trigger" {
   trigger_settings     = var.trigger_settings
   existing_kms_cmk_arn = var.existing_kms_cmk_arn
   runtime_configuration = {
-    account_id     = data.aws_caller_identity.this.account_id
+    account_id     = data.aws_caller_identity.current.account_id
     lambda_name    = aws_lambda_function.this.function_name
-    lambda_arn     = "arn:${data.aws_partition.this.id}:lambda:${data.aws_region.this.id}:${data.aws_caller_identity.this.account_id}:function:${var.lambda_settings.function_name}"
+    lambda_arn     = "arn:${data.aws_partition.current.id}:lambda:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:function:${var.lambda_settings.function_name}"
     lambda_timeout = aws_lambda_function.this.timeout
   }
   resource_tags = local.resource_tags
@@ -221,8 +221,8 @@ module "lambda_execution_iam_role" {
   existing_kms_cmk_arn        = var.existing_kms_cmk_arn
   dead_letter_target_arn      = var.lambda_settings.error_handling != null ? (var.lambda_settings.error_handling.dead_letter_config != null ? var.lambda_settings.dead_letter_config.target_arn : null) : null
   runtime_configuration = {
-    account_id    = data.aws_caller_identity.this.account_id
-    region_name   = data.aws_region.this.id
+    account_id    = data.aws_caller_identity.current.account_id
+    region_name   = data.aws_region.current.id
     region_short  = local.region_name_short
     lambda_name   = var.lambda_settings.function_name
     loggroup_name = local.loggroup_name
