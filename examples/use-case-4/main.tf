@@ -70,23 +70,23 @@ resource "aws_sns_topic" "triggering_sns" {
   tags              = var.resource_tags
 }
 resource "aws_sns_topic_policy" "triggering_sns" {
-  arn    = aws_sns_topic.triggering_sns.arn
+  arn = aws_sns_topic.triggering_sns.arn
   policy = jsonencode({
-    Version   = "2012-10-17"
+    Version = "2012-10-17"
     Statement = [
       {
-        Sid       = "AllowedPublishers"
-        Effect    = "Allow"
-        Action    = "sns:Publish"
+        Sid    = "AllowedPublishers"
+        Effect = "Allow"
+        Action = "sns:Publish"
         Principal = {
           AWS = format("arn:aws:iam::%s:root", data.aws_caller_identity.current.id)
         }
         Resource = aws_sns_topic.triggering_sns.arn
       },
       {
-        Sid       = "AllowedSubscribers"
-        Effect    = "Allow"
-        Action    = "sns:Subscribe"
+        Sid    = "AllowedSubscribers"
+        Effect = "Allow"
+        Action = "sns:Subscribe"
         Principal = {
           AWS = format("arn:aws:iam::%s:root", data.aws_caller_identity.current.id)
         }
