@@ -21,27 +21,27 @@ data "aws_caller_identity" "current" {}
 # ---------------------------------------------------------------------------------------------------------------------
 # ¦ SHARED IAM ROLE
 # ---------------------------------------------------------------------------------------------------------------------
+# Shared IAM role without legacy inline policy
 resource "aws_iam_role" "lambda_exec_role" {
-  name = "use_case_3_shared_exec_role"
-
+  name               = "use_case_3_shared_exec_role"
   assume_role_policy = jsonencode({
-    Version = "2012-10-17"
+    Version   = "2012-10-17"
     Statement = [
       {
-        Action = "sts:AssumeRole"
-        Principal = {
-          Service = "lambda.amazonaws.com"
-        }
-        Effect = "Allow"
-        Sid    = ""
-      },
+        Action    = "sts:AssumeRole"
+        Principal = { Service = "lambda.amazonaws.com" }
+        Effect    = "Allow"
+        Sid       = ""
+      }
     ]
   })
-
-  inline_policy {
-    name   = "inline_lambda_execution_policy"
-    policy = data.aws_iam_policy_document.lambda_permission.json
-  }
+  tags = var.resource_tags
+}
+# Inline policy attached directly to the IAM role
+resource "aws_iam_role_policy" "lambda_exec_inline" {
+  name   = "use_case_3_lambda_exec_policy"
+  role   = aws_iam_role.lambda_exec_role.id
+  policy = data.aws_iam_policy_document.lambda_permission.json
 }
 
 #tfsec:ignore:avd-aws-0057
@@ -58,6 +58,7 @@ data "aws_iam_policy_document" "lambda_permission" {
     resources = ["*"]
   }
 }
+
 
 # ---------------------------------------------------------------------------------------------------------------------
 # ¦ Lambda 1
@@ -80,12 +81,9 @@ module "use_case_3_lambda1" {
     }
   }
   execution_iam_role_settings = {
-    existing_iam_role_name = aws_iam_role.lambda_exec_role.name
+    existing_iam_role_arn = aws_iam_role.lambda_exec_role.arn
   }
   resource_tags = var.resource_tags
-  depends_on = [
-    aws_iam_role.lambda_exec_role
-  ]
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -130,12 +128,9 @@ module "use_case_3_lambda2" {
     event_rules         = local.triggering_event_rules
   }
   execution_iam_role_settings = {
-    existing_iam_role_name = aws_iam_role.lambda_exec_role.name
+    existing_iam_role_arn = aws_iam_role.lambda_exec_role.arn
   }
   resource_tags = var.resource_tags
-  depends_on = [
-    aws_iam_role.lambda_exec_role
-  ]
 }
 
 

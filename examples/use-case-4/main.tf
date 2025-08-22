@@ -26,6 +26,7 @@ resource "aws_kms_key" "lambda_cmk" {
   enable_key_rotation     = true
   deletion_window_in_days = 10
   policy                  = data.aws_iam_policy_document.lambda_kms_policy.json
+  tags                    = var.resource_tags
 }
 resource "aws_kms_alias" "lambda_cmk_alias" {
   name          = "alias/use_case_4_cmk"
@@ -66,38 +67,33 @@ data "aws_iam_policy_document" "lambda_kms_policy" {
 resource "aws_sns_topic" "triggering_sns" {
   name              = format("%s-feed", var.function_name)
   kms_master_key_id = aws_kms_key.lambda_cmk.key_id
+  tags              = var.resource_tags
 }
-
 resource "aws_sns_topic_policy" "triggering_sns" {
   arn    = aws_sns_topic.triggering_sns.arn
-  policy = data.aws_iam_policy_document.triggering_sns.json
-}
-
-data "aws_iam_policy_document" "triggering_sns" {
-  statement {
-    sid     = "AllowedPublishers"
-    actions = ["sns:Publish"]
-    effect  = "Allow"
-    principals {
-      type = "AWS"
-      identifiers = [
-        format("arn:aws:iam::%s:root", data.aws_caller_identity.current.id)
-      ]
-    }
-    resources = [aws_sns_topic.triggering_sns.arn]
-  }
-  statement {
-    sid     = "AllowedSubscribers"
-    actions = ["sns:Subscribe"]
-    effect  = "Allow"
-    principals {
-      type = "AWS"
-      identifiers = [
-        format("arn:aws:iam::%s:root", data.aws_caller_identity.current.id)
-      ]
-    }
-    resources = [aws_sns_topic.triggering_sns.arn]
-  }
+  policy = jsonencode({
+    Version   = "2012-10-17"
+    Statement = [
+      {
+        Sid       = "AllowedPublishers"
+        Effect    = "Allow"
+        Action    = "sns:Publish"
+        Principal = {
+          AWS = format("arn:aws:iam::%s:root", data.aws_caller_identity.current.id)
+        }
+        Resource = aws_sns_topic.triggering_sns.arn
+      },
+      {
+        Sid       = "AllowedSubscribers"
+        Effect    = "Allow"
+        Action    = "sns:Subscribe"
+        Principal = {
+          AWS = format("arn:aws:iam::%s:root", data.aws_caller_identity.current.id)
+        }
+        Resource = aws_sns_topic.triggering_sns.arn
+      }
+    ]
+  })
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
