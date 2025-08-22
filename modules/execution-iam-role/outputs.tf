@@ -10,10 +10,10 @@ output "unique_id" {
 
 output "name" {
   description = "The name of the Lambda execution IAM role."
-  value       = local.create_new_execution_iam_role ? aws_iam_role.execution_role[0].name : data.aws_iam_role.existing_execution_iam_role[0].name
+  value       = local.execution_iam_role_name
 }
 
 output "arn" {
   description = "The ARN of the Lambda execution IAM role."
-  value       = local.create_new_execution_iam_role ? aws_iam_role.execution_role[0].arn : data.aws_iam_role.existing_execution_iam_role[0].arn
+  value       = local.execution_iam_role_arn
 }

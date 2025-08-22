@@ -26,6 +26,7 @@ resource "aws_kms_key" "lambda_cmk" {
   enable_key_rotation     = true
   deletion_window_in_days = 10
   policy                  = data.aws_iam_policy_document.lambda_kms_policy.json
+  tags                    = var.resource_tags
 }
 resource "aws_kms_alias" "lambda_cmk_alias" {
   name          = "alias/use_case_4_cmk"
@@ -66,6 +67,7 @@ data "aws_iam_policy_document" "lambda_kms_policy" {
 resource "aws_sns_topic" "triggering_sns" {
   name              = format("%s-feed", var.function_name)
   kms_master_key_id = aws_kms_key.lambda_cmk.key_id
+  tags              = var.resource_tags
 }
 
 resource "aws_sns_topic_policy" "triggering_sns" {
