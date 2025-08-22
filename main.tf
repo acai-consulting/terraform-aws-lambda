@@ -20,9 +20,9 @@ terraform {
 # ---------------------------------------------------------------------------------------------------------------------
 # ¦ DATA
 # ---------------------------------------------------------------------------------------------------------------------
-data "aws_caller_identity" "current" {}
-data "aws_region" "current" {}
 data "aws_partition" "current" {}
+data "aws_region" "current" {}
+data "aws_caller_identity" "current" {}
 
 # ---------------------------------------------------------------------------------------------------------------------
 # ¦ LOCALS
@@ -49,6 +49,16 @@ locals {
     substr(data.aws_region.current.id, local.region_name_length - 1, 1)
   )
   loggroup_name = "/aws/lambda/${var.lambda_settings.function_name}"
+  runtime_configuration = {
+    partition_name = data.aws_partition.current.id
+    region_name    = data.aws_region.current.id
+    region_short   = local.region_name_short
+    account_id     = data.aws_caller_identity.current.account_id
+    lambda_name    = var.lambda_settings.function_name
+    lambda_arn     = "arn:${data.aws_partition.current.id}:lambda:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:function:${var.lambda_settings.function_name}"
+    lambda_timeout = var.lambda_settings.config.timeout
+    loggroup_name  = local.loggroup_name
+  }
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -199,16 +209,11 @@ module "lambda_trigger" {
   source = "./modules/trigger"
   count  = var.trigger_settings != {} ? 1 : 0
 
-  trigger_settings     = var.trigger_settings
-  existing_kms_cmk_arn = var.existing_kms_cmk_arn
-  runtime_configuration = {
-    account_id     = data.aws_caller_identity.current.account_id
-    lambda_name    = aws_lambda_function.this.function_name
-    lambda_arn     = "arn:${data.aws_partition.current.id}:lambda:${data.aws_region.current.id}:${data.aws_caller_identity.current.account_id}:function:${var.lambda_settings.function_name}"
-    lambda_timeout = aws_lambda_function.this.timeout
-  }
-  resource_tags = local.resource_tags
-  depends_on    = [aws_lambda_function.this]
+  trigger_settings      = var.trigger_settings
+  existing_kms_cmk_arn  = var.existing_kms_cmk_arn
+  runtime_configuration = local.runtime_configuration
+  resource_tags         = local.resource_tags
+  depends_on            = [aws_lambda_function.this]
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -220,15 +225,9 @@ module "lambda_execution_iam_role" {
   execution_iam_role_settings = var.execution_iam_role_settings
   existing_kms_cmk_arn        = var.existing_kms_cmk_arn
   dead_letter_target_arn      = var.lambda_settings.error_handling != null ? (var.lambda_settings.error_handling.dead_letter_config != null ? var.lambda_settings.dead_letter_config.target_arn : null) : null
-  runtime_configuration = {
-    account_id    = data.aws_caller_identity.current.account_id
-    region_name   = data.aws_region.current.id
-    region_short  = local.region_name_short
-    lambda_name   = var.lambda_settings.function_name
-    loggroup_name = local.loggroup_name
-  }
-  vpc_subnet_ids = var.lambda_settings.vpc_config != null ? var.lambda_settings.vpc_config.subnet_ids : []
-  resource_tags  = local.resource_tags
+  runtime_configuration       = local.runtime_configuration
+  vpc_subnet_ids              = var.lambda_settings.vpc_config != null ? var.lambda_settings.vpc_config.subnet_ids : []
+  resource_tags               = local.resource_tags
 }
 
 resource "aws_iam_role_policy_attachment" "aws_xray_write_only_access" {

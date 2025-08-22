@@ -16,11 +16,12 @@ variable "execution_iam_role_settings" {
 variable "runtime_configuration" {
   description = "Configuration related to the runtime environment of the Lambda function."
   type = object({
-    account_id    = string
-    region_name   = string
-    region_short  = string
-    lambda_name   = string
-    loggroup_name = string
+    partition_name = string
+    region_name    = string
+    region_short   = string
+    account_id     = string
+    lambda_name    = string
+    loggroup_name  = string
   })
 }
 
