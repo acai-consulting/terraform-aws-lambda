@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.19](https://github.com/acai-consulting/terraform-aws-lambda/compare/1.3.18...1.3.19) (2025-08-22)
+
+
+### Bug Fixes
+
+* Refactor handling of IAM output, data.this -> data.current ([#38](https://github.com/acai-consulting/terraform-aws-lambda/issues/38)) ([36929db](https://github.com/acai-consulting/terraform-aws-lambda/commit/36929db029305275567d1c03f09cdd9d95774afb))
+
 ## [1.3.18](https://github.com/acai-consulting/terraform-aws-lambda/compare/1.3.17...1.3.18) (2025-08-12)
 
 
