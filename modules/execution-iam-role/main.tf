@@ -14,14 +14,6 @@ terraform {
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
-# ¦ DATA
-# ---------------------------------------------------------------------------------------------------------------------
-data "aws_iam_role" "existing_execution_iam_role" {
-  count = local.create_new_execution_iam_role == false ? 1 : 0
-  name  = var.execution_iam_role_settings.existing_iam_role_name
-}
-
-# ---------------------------------------------------------------------------------------------------------------------
 # ¦ LOCALS
 # ---------------------------------------------------------------------------------------------------------------------
 locals {
@@ -38,13 +30,13 @@ locals {
   execution_iam_role_name = local.create_new_execution_iam_role ? (
     aws_iam_role.execution_role[0].name
     ) : (
-    data.aws_iam_role.existing_execution_iam_role[0].name
+    element(reverse(split("/", var.execution_iam_role_settings.existing_iam_role_arn)), 0)
   )
 
   execution_iam_role_arn = local.create_new_execution_iam_role ? (
     replace("arn:${var.runtime_configuration.partition_name}:iam::${var.runtime_configuration.account_id}:role/${trim(local.new_execution_iam_role.path, "/")}/${local.new_execution_iam_role_name}", "////", "/")
     ) : (
-    data.aws_iam_role.existing_execution_iam_role[0].arn
+    var.execution_iam_role_settings.existing_iam_role_arn
   )
 }
 

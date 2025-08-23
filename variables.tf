@@ -204,7 +204,7 @@ variable "execution_iam_role_settings" {
       permission_policy_arn_list  = optional(list(string), [])
       permission_policy_json_list = optional(list(string), [])
     }), null)
-    existing_iam_role_name               = optional(string, null)
+    existing_iam_role_arn                = optional(string, null)
     permissions_fully_externally_managed = optional(bool, false)
   })
   default = {
@@ -217,10 +217,10 @@ variable "execution_iam_role_settings" {
   }
   validation {
     condition = (
-      (var.execution_iam_role_settings.new_iam_role != null && var.execution_iam_role_settings.existing_iam_role_name == null) ||
-      (var.execution_iam_role_settings.new_iam_role == null && var.execution_iam_role_settings.existing_iam_role_name != null)
+      (var.execution_iam_role_settings.new_iam_role != null && var.execution_iam_role_settings.existing_iam_role_arn == null) ||
+      (var.execution_iam_role_settings.new_iam_role == null && var.execution_iam_role_settings.existing_iam_role_arn != null)
     )
-    error_message = "Specify exactly one of 'new_role' or 'existing_iam_role_name'."
+    error_message = "Specify exactly one of 'new_role' or 'existing_iam_role_arn'."
   }
 }
 
