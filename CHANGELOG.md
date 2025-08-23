@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.4.0](https://github.com/acai-consulting/terraform-aws-lambda/compare/1.3.19...1.4.0) (2025-08-23)
+
+
+### Features
+
+* Existing IAM Role ARN instead of Name ([#39](https://github.com/acai-consulting/terraform-aws-lambda/issues/39)) ([064a0f8](https://github.com/acai-consulting/terraform-aws-lambda/commit/064a0f8a1887d54a825d7660ff05c188abf500f8))
+
 ## [1.3.19](https://github.com/acai-consulting/terraform-aws-lambda/compare/1.3.18...1.3.19) (2025-08-22)
 
 
