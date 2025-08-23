@@ -240,7 +240,7 @@ module "use_case_3_lambda1" {
     }
   }
   execution_iam_role_settings = {
-    existing_iam_role_name = aws_iam_role.lambda_exec_role.name
+    existing_iam_role_arn = aws_iam_role.lambda_exec_role.arn
   }
   resource_tags = var.resource_tags
   depends_on = [
@@ -290,7 +290,7 @@ module "use_case_3_lambda2" {
     event_rules         = local.triggering_event_rules
   }
   execution_iam_role_settings = {
-    existing_iam_role_name = aws_iam_role.lambda_exec_role.name
+    existing_iam_role_arn = aws_iam_role.lambda_exec_role.arn
   }
   resource_tags = var.resource_tags
   depends_on = [
